@@ -58,6 +58,7 @@ Get as big as you possibly can!
 - [ ] Create the logic that allows the snake to eat and grow
 - [ ] Setup the fail conditions (snake eats itself ro poisonous food)
 - [ ] Setup the point system
+- [ ] Make settings for difficulty, sound, volume, etc (Auxiliary)
 
 #### **Visuals**
 
