@@ -73,7 +73,7 @@ Get as big as you possibly can!
 - [ ] Add music to the game
 - [ ] Add game over music
 
-#### \*\*Animations & Effects(Auxiliary)
+#### **Animations & Effects(Auxiliary)**
 
 - [ ] Make the score counter(s) gradually increase/decrease, instead of instantly changing
 - [ ] Make the snake slither smoothly across the screen
