@@ -49,42 +49,10 @@ Get as big as you possibly can!
 
 ### **_Future Updates_**
 
-#### **Functionality**
-
-- [ ] Setup the movement grid
-- [ ] Setup the snake and it's movement
-- [ ] Setup the direction controls for the snake
-- [ ] Setup the food
-- [ ] Create the logic that allows the snake to eat and grow
-- [ ] Setup the fail conditions (snake eats itself ro poisonous food)
-- [ ] Setup the point system
-- [ ] Make settings for difficulty, sound, volume, etc (Auxiliary)
-
-#### **Visuals**
-
-- [ ] Stylize the grid the snake moves on
-- [ ] Stylize the snake itself
-- [ ] Stylize the point counter(s)
-- [ ] Add dark mode option (Auxiliary)
-- [ ] Make use of Google Fonts (Auxiliary)
-
-#### **Audio (Auxiliary)**
-
-- [ ] Add sound for the snake eating
-- [ ] Add music to the game
-- [ ] Add game over music
-
-#### **Animations & Effects(Auxiliary)**
-
-- [ ] Make the score counter(s) gradually increase/decrease, instead of instantly changing
-- [ ] Make the snake slither smoothly across the screen
-- [ ] Add slight screen shake when the snake eats food
-
-#### **Miscellaneous**
-
-- [ ] Have at least 20 meaningful git commits
-- [ ] Use proper indentation and spaces in code
-- [ ] Make proper use of global variables and function parameters
+- [ ] Add countdown timer
+- [ ] Add sounds and music
+- [ ] Add dark mode
+- [ ] Add difficulty settings
 
 ---
 
