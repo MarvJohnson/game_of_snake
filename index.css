@@ -1,0 +1,37 @@
+* {
+  --movement-grid-min-dimensions: 300px;
+  --movement-grid-max-dimensions: 1000px;
+  --movement-grid-border-color: black;
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
+h1 {
+  text-align: center;
+}
+
+main {
+  display: flex !important;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+#play-area {
+  display: grid;
+  border: 3px solid var(--movement-grid-border-color, black);
+  min-height: var(--movement-grid-min-dimensions, 300px);
+  min-width: var(--movement-grid-min-dimensions, 300px);
+  max-height: var(--movement-grid-max-dimensions, 600px);
+  max-width: var(--movement-grid-max-dimensions, 600px);
+  overflow: visible;
+}
+
+.checkered-cell {
+  background-color: #666;
+}
