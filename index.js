@@ -4,8 +4,8 @@ const movementGridCells = [];
 
 const settings = {
   movementGridDimensions: {
-    x: 20,
-    y: 20
+    x: 21,
+    y: 21
   }
 };
 
@@ -13,7 +13,41 @@ const game = {
   state: 'pre-game',
   score: 0,
   foodEaten: 0,
-  currentMoveDirection: 'right'
+  currentMoveDirection: 'right',
+  loopTimeout: undefined,
+  tickSpeed: 100,
+  setMoveDirection(movementKey) {
+    switch (movementKey) {
+      case 'w':
+        this.currentMoveDirection =
+          SnakeSegment.snakeHead.lastOccupiedCell !==
+          SnakeSegment.snakeHead.currentlyOccupiedCell.topNeighbor
+            ? 'up'
+            : this.currentMoveDirection;
+        break;
+      case 'a':
+        this.currentMoveDirection =
+          SnakeSegment.snakeHead.lastOccupiedCell !==
+          SnakeSegment.snakeHead.currentlyOccupiedCell.leftNeighbor
+            ? 'left'
+            : this.currentMoveDirection;
+        break;
+      case 's':
+        this.currentMoveDirection =
+          SnakeSegment.snakeHead.lastOccupiedCell !==
+          SnakeSegment.snakeHead.currentlyOccupiedCell.bottomNeighbor
+            ? 'down'
+            : this.currentMoveDirection;
+        break;
+      case 'd':
+        this.currentMoveDirection =
+          SnakeSegment.snakeHead.lastOccupiedCell !==
+          SnakeSegment.snakeHead.currentlyOccupiedCell.rightNeighbor
+            ? 'right'
+            : this.currentMoveDirection;
+        break;
+    }
+  }
 };
 
 // --Classes-- //
@@ -29,6 +63,12 @@ class Cell {
 
   setOccupant(occupant) {
     this.currentOccupant = occupant;
+    this.element.style.background = this.currentOccupant.cellVisual;
+  }
+
+  removeOccupant() {
+    this.currentOccupant = null;
+    this.element.style.background = 'transparent';
   }
 
   isOccupied() {
@@ -46,18 +86,49 @@ class Occupant {
   }
 }
 
-class SnakePart extends Occupant {
+class SnakeSegment extends Occupant {
   static snakeHead;
+  static snakeLength = 1;
+  static snakeVisual = 'green';
+  currentlyOccupiedCell;
   lastOccupiedCell = null;
+  nextSegment;
   constructor(currentlyOccupiedCell, snakeVisual) {
     super(snakeVisual);
-    this.currentlyOccupiedCell = currentlyOccupiedCell;
+    this.setOccupiedCell(currentlyOccupiedCell);
   }
 
   setOccupiedCell(cell) {
+    if (Boolean(this.currentlyOccupiedCell)) {
+      if (this.currentlyOccupiedCell === cell) {
+        return;
+      }
+      this.currentlyOccupiedCell.removeOccupant();
+    }
+
     super.setOccupiedCell(cell);
     this.lastOccupiedCell = this.currentlyOccupiedCell;
     this.currentlyOccupiedCell = cell;
+  }
+
+  pullOtherSegments() {
+    let currentSegment = this;
+    while (currentSegment.nextSegment) {
+      currentSegment.nextSegment.setOccupiedCell(
+        currentSegment.lastOccupiedCell
+      );
+      currentSegment = currentSegment.nextSegment;
+    }
+  }
+
+  getTail() {
+    let tail = this;
+
+    while (tail.nextSegment) {
+      tail = tail.nextSegment;
+    }
+
+    return tail;
   }
 }
 
@@ -71,6 +142,15 @@ class Food extends Occupant {
 }
 
 // --Functions-- //
+const getMiddleCellOfMovementGrid = () => {
+  return movementGridCells[
+    Math.floor(
+      settings.movementGridDimensions.x *
+        (settings.movementGridDimensions.y / 2)
+    )
+  ];
+};
+
 const runMovementCellNeighborVisualizer = (speed = 500) => {
   for (let i = 0; i < movementGridCells.length; i++) {
     let currentCell = movementGridCells[i];
@@ -158,9 +238,94 @@ const setupMovementGrid = () => {
   setupCellNeighbors();
 };
 
+const increaseSnakeLength = () => {
+  let newSnakeSegment = new SnakeSegment(
+    SnakeSegment.snakeHead.getTail().lastOccupiedCell,
+    SnakeSegment.snakeVisual
+  );
+  SnakeSegment.snakeHead.getTail().nextSegment = newSnakeSegment;
+  SnakeSegment.snakeLength++;
+};
+
+const moveSnake = () => {
+  switch (game.currentMoveDirection) {
+    case 'up':
+      if (SnakeSegment.snakeHead.currentlyOccupiedCell.topNeighbor) {
+        SnakeSegment.snakeHead.setOccupiedCell(
+          SnakeSegment.snakeHead.currentlyOccupiedCell.topNeighbor
+        );
+      } else {
+        loseGame();
+      }
+      break;
+    case 'down':
+      if (SnakeSegment.snakeHead.currentlyOccupiedCell.bottomNeighbor) {
+        SnakeSegment.snakeHead.setOccupiedCell(
+          SnakeSegment.snakeHead.currentlyOccupiedCell.bottomNeighbor
+        );
+      } else {
+        loseGame();
+      }
+      break;
+    case 'left':
+      if (SnakeSegment.snakeHead.currentlyOccupiedCell.leftNeighbor) {
+        SnakeSegment.snakeHead.setOccupiedCell(
+          SnakeSegment.snakeHead.currentlyOccupiedCell.leftNeighbor
+        );
+      } else {
+        loseGame();
+      }
+      break;
+    case 'right':
+      if (SnakeSegment.snakeHead.currentlyOccupiedCell.rightNeighbor) {
+        SnakeSegment.snakeHead.setOccupiedCell(
+          SnakeSegment.snakeHead.currentlyOccupiedCell.rightNeighbor
+        );
+      } else {
+        loseGame();
+      }
+      break;
+  }
+  SnakeSegment.snakeHead.pullOtherSegments();
+};
+
+const gameLoop = () => {
+  if (game.state === 'running') {
+    moveSnake();
+    game.loopTimeout = setTimeout(gameLoop, game.tickSpeed);
+    console.log(`game.looptimeout is now ${game.loopTimeout}`);
+  }
+};
+
+const stopGame = () => {
+  console.log(`stopping game.loopTimeout ${game.loopTimeout}`);
+  clearTimeout(game.loopTimeout);
+  game.state = 'stopped';
+};
+
+const loseGame = () => {
+  stopGame();
+};
+
+const startGame = () => {
+  game.state = 'running';
+  gameLoop();
+};
 // --Event Listeners-- //
+document.onkeydown = (e) => {
+  game.setMoveDirection(e.key);
+
+  if (e.key === 'e') {
+    increaseSnakeLength();
+  }
+};
 
 // --Main-- //
 setupMovementGrid();
-SnakePart.snakeHead = new SnakePart(null, '#eee');
-console.log(SnakePart.snakeHead);
+
+SnakeSegment.snakeHead = new SnakeSegment(
+  getMiddleCellOfMovementGrid(),
+  'darkgreen'
+);
+console.log(SnakeSegment.snakeHead);
+startGame();
