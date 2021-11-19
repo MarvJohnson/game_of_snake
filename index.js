@@ -43,7 +43,10 @@ class SnakeSegment extends Occupant {
   nextSegment;
   constructor(currentlyOccupiedCell, snakeVisual) {
     super(snakeVisual);
-    this.setOccupiedCell(currentlyOccupiedCell);
+
+    if (currentlyOccupiedCell) {
+      this.setOccupiedCell(currentlyOccupiedCell);
+    }
   }
 
   setOccupiedCell(cell) {
@@ -395,6 +398,7 @@ const loseGame = () => {
 };
 
 const startGame = () => {
+  snakeHead.setOccupiedCell(getMiddleCellOfMovementGrid());
   spawnFoodRandomly();
   gameLoop();
 };
@@ -417,5 +421,4 @@ document.onkeydown = (e) => {
 
 // --Main-- //
 setupMovementGrid();
-const snakeHead = new SnakeHead(getMiddleCellOfMovementGrid(), '#2574B1');
-startGame();
+const snakeHead = new SnakeHead(null, '#2574B1');
