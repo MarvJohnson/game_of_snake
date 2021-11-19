@@ -61,7 +61,7 @@ class SnakeSegment extends Occupant {
 }
 
 class SnakeHead extends SnakeSegment {
-  static snakeLength = 1;
+  snakeLength = 1;
   constructor(currentlyOccupiedCell, snakeVisual) {
     super(currentlyOccupiedCell, snakeVisual);
   }
@@ -102,6 +102,20 @@ class SnakeHead extends SnakeSegment {
     }
 
     return tail;
+  }
+
+  reset() {
+    this.snakeLength = 1;
+
+    let currentSegment = this;
+    while (currentSegment.nextSegment) {
+      let temp = currentSegment.nextSegment;
+      currentSegment.nextSegment.currentlyOccupiedCell.removeOccupant();
+      currentSegment.nextSegment = null;
+      currentSegment = temp;
+    }
+
+    this.setOccupiedCell(getMiddleCellOfMovementGrid());
   }
 }
 
@@ -157,6 +171,7 @@ const game = {
   foodEaten: 0,
   foodItems: [new Apple(), new Banana()],
   foodItemsOnGrid: 0,
+  initialMoveDirection: 'right',
   currentMoveDirection: 'right',
   loopTimeout: undefined,
   tickSpeed: 80,
@@ -188,19 +203,41 @@ const game = {
         break;
     }
   },
+  updateScoreDisplays() {
+    scoreValue.innerText = this.score.toString();
+    previousBestScoreValue.innerText = this.previousBestScore.toString();
+    foodEatenValue.innerText = this.foodEaten.toString();
+  },
   changeScore(amount) {
     this.score += amount;
 
     if (this.score > this.previousBestScore) {
       this.previousBestScore = this.score;
-      previousBestScoreValue.innerText = this.previousBestScore.toString();
     }
 
-    scoreValue.innerText = this.score.toString();
+    this.updateScoreDisplays();
   },
   changeFoodEaten(amount) {
     this.foodEaten += amount;
-    foodEatenValue.innerText = this.foodEaten.toString();
+    this.updateScoreDisplays();
+  },
+  resetScores(includePb = false) {
+    this.score = 0;
+    this.foodEaten = 0;
+
+    if (includePb) {
+      this.previousBestScore = 0;
+    }
+
+    this.updateScoreDisplays();
+  },
+  reset() {
+    stopGame();
+    resetMovementGrid();
+    this.resetScores();
+    snakeHead.reset();
+    this.currentMoveDirection = this.initialMoveDirection;
+    startGame();
   }
 };
 
@@ -218,6 +255,12 @@ const getRandomMovementGridCell = () => {
   return movementGridCells[
     Math.floor(Math.random() * movementGridCells.length)
   ];
+};
+
+const resetMovementGrid = () => {
+  movementGridCells.forEach((cell) => {
+    cell.removeOccupant();
+  });
 };
 
 const runMovementCellNeighborVisualizer = (speed = 500) => {
@@ -352,7 +395,7 @@ const loseGame = () => {
 };
 
 const startGame = () => {
-  game.state = 'running';
+  spawnFoodRandomly();
   gameLoop();
 };
 // --Event Listeners-- //
@@ -366,10 +409,13 @@ document.onkeydown = (e) => {
   if (e.key === 'q') {
     spawnFoodRandomly();
   }
+
+  if (e.key === 'r') {
+    game.reset();
+  }
 };
 
 // --Main-- //
 setupMovementGrid();
 const snakeHead = new SnakeHead(getMiddleCellOfMovementGrid(), '#2574B1');
 startGame();
-spawnFoodRandomly();
