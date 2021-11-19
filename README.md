@@ -60,4 +60,12 @@ Get as big as you possibly can!
 
 Organization: [Trello](https://trello.com/b/fNyosNRS/snake-game-project)
 
+Colors: [Coolors.co](https://coolors.co/)
+
+Documentation: [MDN Web Docs](https://developer.mozilla.org/en-US/)
+
+Accessability:
+
+- [Color Contrasting](https://webaim.org/resources/contrastchecker/)
+
 Fonts: [Google Fonts](https://fonts.google.com/)

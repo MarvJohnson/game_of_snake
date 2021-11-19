@@ -51,11 +51,23 @@ main {
 }
 
 #play-area {
+  position: relative;
   display: grid;
   border: 4px solid var(--movement-grid-border-color, black);
   width: auto;
   flex-grow: 1;
   overflow: visible;
+}
+
+#play-area.main-menu > .menu {
+  display: block;
+}
+
+.menu {
+  display: none;
+  position: absolute;
+  width: 100%;
+  height: 100%;
 }
 
 .cell {
