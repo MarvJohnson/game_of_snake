@@ -52,13 +52,16 @@ class SnakeSegment extends Occupant {
       return;
     }
 
-    let currentSegment = this;
-    while (currentSegment.nextSegment) {
-      if (currentSegment.currentlyOccupiedCell === cell) {
-        loseGame();
-        return;
-      }
-      currentSegment = currentSegment.nextSegment;
+    if (cell.currentOccupant instanceof SnakeSegment) {
+      loseGame();
+      return;
+    }
+
+    if (
+      this === SnakeSegment.snakeHead &&
+      cell.currentOccupant instanceof Food
+    ) {
+      cell.currentOccupant.eat();
     }
 
     if (Boolean(this.currentlyOccupiedCell)) {
@@ -101,6 +104,13 @@ class Food extends Occupant {
     this.value = value;
     this.poisonous = poisonous;
   }
+
+  eat() {
+    game.foodEaten++;
+    game.foodItemsOnGrid--;
+    game.score += this.value;
+    addSnakeSegment();
+  }
 }
 
 class Apple extends Food {
@@ -131,7 +141,7 @@ const game = {
   score: 0,
   foodEaten: 0,
   foodItems: [new Apple(), new Banana()],
-  foodItemCount: 0,
+  foodItemsOnGrid: 0,
   currentMoveDirection: 'right',
   loopTimeout: undefined,
   tickSpeed: 100,
@@ -273,7 +283,7 @@ const spawnFoodRandomly = () => {
   randomFood.setOccupiedCell(randomGridCell);
 };
 
-const increaseSnakeLength = () => {
+const addSnakeSegment = () => {
   let newSnakeSegment = new SnakeSegment(
     SnakeSegment.snakeHead.getTail().lastOccupiedCell,
     SnakeSegment.snakeVisual
@@ -312,7 +322,7 @@ document.onkeydown = (e) => {
   game.setMoveDirection(e.key);
 
   if (e.key === 'e') {
-    increaseSnakeLength();
+    addSnakeSegment();
   }
 
   if (e.key === 'q') {
@@ -328,4 +338,5 @@ SnakeSegment.snakeHead = new SnakeSegment(
   'darkgreen'
 );
 console.log(SnakeSegment.snakeHead);
+console.log(game.foodItems[0] instanceof Food);
 startGame();
