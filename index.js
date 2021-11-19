@@ -13,6 +13,8 @@ const game = {
   state: 'pre-game',
   score: 0,
   foodEaten: 0,
+  foodItems: [new Food('Apple', red, 10, false)],
+  foodItemCount: 0,
   currentMoveDirection: 'right',
   loopTimeout: undefined,
   tickSpeed: 100,
@@ -21,28 +23,28 @@ const game = {
       case 'w':
         this.currentMoveDirection =
           SnakeSegment.snakeHead.lastOccupiedCell !==
-          SnakeSegment.snakeHead.currentlyOccupiedCell.topNeighbor
+          SnakeSegment.snakeHead.currentlyOccupiedCell.up
             ? 'up'
             : this.currentMoveDirection;
         break;
       case 'a':
         this.currentMoveDirection =
           SnakeSegment.snakeHead.lastOccupiedCell !==
-          SnakeSegment.snakeHead.currentlyOccupiedCell.leftNeighbor
+          SnakeSegment.snakeHead.currentlyOccupiedCell.left
             ? 'left'
             : this.currentMoveDirection;
         break;
       case 's':
         this.currentMoveDirection =
           SnakeSegment.snakeHead.lastOccupiedCell !==
-          SnakeSegment.snakeHead.currentlyOccupiedCell.bottomNeighbor
+          SnakeSegment.snakeHead.currentlyOccupiedCell.down
             ? 'down'
             : this.currentMoveDirection;
         break;
       case 'd':
         this.currentMoveDirection =
           SnakeSegment.snakeHead.lastOccupiedCell !==
-          SnakeSegment.snakeHead.currentlyOccupiedCell.rightNeighbor
+          SnakeSegment.snakeHead.currentlyOccupiedCell.right
             ? 'right'
             : this.currentMoveDirection;
         break;
@@ -52,10 +54,10 @@ const game = {
 
 // --Classes-- //
 class Cell {
-  topNeighbor;
-  rightNeighbor;
-  bottomNeighbor;
-  leftNeighbor;
+  up;
+  right;
+  bottom;
+  left;
   currentOccupant = null;
   constructor(element) {
     this.element = element;
@@ -99,6 +101,20 @@ class SnakeSegment extends Occupant {
   }
 
   setOccupiedCell(cell) {
+    if (!cell) {
+      loseGame();
+      return;
+    }
+
+    let currentSegment = this;
+    while (currentSegment.nextSegment) {
+      if (currentSegment.currentlyOccupiedCell === cell) {
+        loseGame();
+        return;
+      }
+      currentSegment = currentSegment.nextSegment;
+    }
+
     if (Boolean(this.currentlyOccupiedCell)) {
       if (this.currentlyOccupiedCell === cell) {
         return;
@@ -210,25 +226,24 @@ const placeAllCellElements = () => {
 const setupCellNeighbors = () => {
   movementGridCells.forEach((element, index) => {
     let indexForRows = index % settings.movementGridDimensions.x;
-    let topNeighborIndex = index - settings.movementGridDimensions.x;
-    let rightNeighborIndex = index + 1;
-    let bottomNeighborIndex = index + settings.movementGridDimensions.x;
-    let leftNeighborIndex = index - 1;
+    let upIndex = index - settings.movementGridDimensions.x;
+    let rightIndex = index + 1;
+    let downIndex = index + settings.movementGridDimensions.x;
+    let leftIndex = index - 1;
 
-    element.topNeighbor =
+    element.up =
       index >= settings.movementGridDimensions.x
-        ? movementGridCells[topNeighborIndex]
+        ? movementGridCells[upIndex]
         : null;
-    element.rightNeighbor =
+    element.right =
       indexForRows < settings.movementGridDimensions.x - 1
-        ? movementGridCells[rightNeighborIndex]
+        ? movementGridCells[rightIndex]
         : null;
-    element.bottomNeighbor =
+    element.down =
       index <= movementGridCells.length - settings.movementGridDimensions.x - 1
-        ? movementGridCells[bottomNeighborIndex]
+        ? movementGridCells[downIndex]
         : null;
-    element.leftNeighbor =
-      indexForRows > 0 ? movementGridCells[leftNeighborIndex] : null;
+    element.left = indexForRows > 0 ? movementGridCells[leftIndex] : null;
   });
 };
 
@@ -248,63 +263,24 @@ const increaseSnakeLength = () => {
 };
 
 const moveSnake = () => {
-  switch (game.currentMoveDirection) {
-    case 'up':
-      if (SnakeSegment.snakeHead.currentlyOccupiedCell.topNeighbor) {
-        SnakeSegment.snakeHead.setOccupiedCell(
-          SnakeSegment.snakeHead.currentlyOccupiedCell.topNeighbor
-        );
-      } else {
-        loseGame();
-      }
-      break;
-    case 'down':
-      if (SnakeSegment.snakeHead.currentlyOccupiedCell.bottomNeighbor) {
-        SnakeSegment.snakeHead.setOccupiedCell(
-          SnakeSegment.snakeHead.currentlyOccupiedCell.bottomNeighbor
-        );
-      } else {
-        loseGame();
-      }
-      break;
-    case 'left':
-      if (SnakeSegment.snakeHead.currentlyOccupiedCell.leftNeighbor) {
-        SnakeSegment.snakeHead.setOccupiedCell(
-          SnakeSegment.snakeHead.currentlyOccupiedCell.leftNeighbor
-        );
-      } else {
-        loseGame();
-      }
-      break;
-    case 'right':
-      if (SnakeSegment.snakeHead.currentlyOccupiedCell.rightNeighbor) {
-        SnakeSegment.snakeHead.setOccupiedCell(
-          SnakeSegment.snakeHead.currentlyOccupiedCell.rightNeighbor
-        );
-      } else {
-        loseGame();
-      }
-      break;
-  }
+  SnakeSegment.snakeHead.setOccupiedCell(
+    SnakeSegment.snakeHead.currentlyOccupiedCell[game.currentMoveDirection]
+  );
   SnakeSegment.snakeHead.pullOtherSegments();
 };
 
 const gameLoop = () => {
-  if (game.state === 'running') {
-    moveSnake();
-    game.loopTimeout = setTimeout(gameLoop, game.tickSpeed);
-    console.log(`game.looptimeout is now ${game.loopTimeout}`);
-  }
+  game.loopTimeout = setTimeout(gameLoop, game.tickSpeed);
+  moveSnake();
 };
 
 const stopGame = () => {
-  console.log(`stopping game.loopTimeout ${game.loopTimeout}`);
   clearTimeout(game.loopTimeout);
-  game.state = 'stopped';
 };
 
 const loseGame = () => {
   stopGame();
+  console.log('Game over!');
 };
 
 const startGame = () => {
