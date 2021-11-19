@@ -108,7 +108,7 @@ class Food extends Occupant {
   eat() {
     game.foodEaten++;
     game.foodItemsOnGrid--;
-    game.score += this.value;
+    game.changeScore(this.value);
     addSnakeSegment();
   }
 }
@@ -127,6 +127,7 @@ class Banana extends Food {
 
 // --Global Variables-- //
 const playArea = document.getElementById('play-area');
+const scoreValue = document.getElementById('score-value');
 const movementGridCells = [];
 
 const settings = {
@@ -144,7 +145,7 @@ const game = {
   foodItemsOnGrid: 0,
   currentMoveDirection: 'right',
   loopTimeout: undefined,
-  tickSpeed: 100,
+  tickSpeed: 80,
   setMoveDirection(movementKey) {
     switch (movementKey) {
       case 'w':
@@ -176,6 +177,10 @@ const game = {
             : this.currentMoveDirection;
         break;
     }
+  },
+  changeScore(amount) {
+    this.score += amount;
+    scoreValue.innerText = this.score.toString();
   }
 };
 
