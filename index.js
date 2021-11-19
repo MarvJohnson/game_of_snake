@@ -39,7 +39,7 @@ class Occupant {
 class SnakeSegment extends Occupant {
   static snakeHead;
   static snakeLength = 1;
-  static snakeVisual = 'green';
+  static snakeVisual = '#2e8bd2';
   currentlyOccupiedCell;
   lastOccupiedCell = null;
   nextSegment;
@@ -108,9 +108,9 @@ class Food extends Occupant {
   }
 
   eat() {
-    game.foodEaten++;
     game.foodItemsOnGrid--;
     game.changeScore(this.value);
+    game.changeFoodEaten(1);
     addSnakeSegment();
     spawnFoodRandomly();
   }
@@ -118,19 +118,20 @@ class Food extends Occupant {
 
 class Apple extends Food {
   constructor() {
-    super('Apple', 'red', 10, false);
+    super('Apple', 'yellow', 10, false);
   }
 }
 
 class Banana extends Food {
   constructor() {
-    super('Banana', 'red', 10, false);
+    super('Banana', 'yellow', 10, false);
   }
 }
 
 // --Global Variables-- //
 const playArea = document.getElementById('play-area');
 const scoreValue = document.getElementById('score-value');
+const foodEatenValue = document.getElementById('food-eaten-value');
 const movementGridCells = [];
 
 const settings = {
@@ -184,6 +185,10 @@ const game = {
   changeScore(amount) {
     this.score += amount;
     scoreValue.innerText = this.score.toString();
+  },
+  changeFoodEaten(amount) {
+    this.foodEaten += amount;
+    foodEatenValue.innerText = this.foodEaten.toString();
   }
 };
 
@@ -346,7 +351,7 @@ setupMovementGrid();
 
 SnakeSegment.snakeHead = new SnakeSegment(
   getMiddleCellOfMovementGrid(),
-  'darkgreen'
+  '#2574B1'
 );
 console.log(SnakeSegment.snakeHead);
 console.log(game.foodItems[0] instanceof Food);

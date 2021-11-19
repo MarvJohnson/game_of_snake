@@ -1,7 +1,7 @@
 * {
   --movement-grid-min-dimensions: 300px;
   --movement-grid-max-dimensions: 1000px;
-  --movement-grid-border-color: black;
+  --movement-grid-border-color: #9198a1;
 }
 
 html,
@@ -13,6 +13,8 @@ body {
 body {
   display: flex;
   flex-direction: column;
+  background-color: #273546;
+  color: #9198a1;
 }
 
 h1 {
@@ -52,9 +54,9 @@ main {
 }
 
 .cell {
-  background-color: #eee;
+  background-color: #1f2836;
 }
 
 .checkered-cell {
-  background-color: #ccc;
+  background-color: #263445;
 }
