@@ -45,7 +45,9 @@ Get as big as you possibly can!
 
 ![UI Mockup 1](https://github.com/Menthus123/game_of_snake/blob/main/images/game_of_snake_ui_mockup_1.jpg?raw=true)
 
----
+#### Main Menu UI Mockup
+
+## ![Main Menu UI Mockup](https://github.com/Menthus123/game_of_snake/blob/main/images/main-menu_ui_mockup.png?raw=true)
 
 ### **_Future Updates_**
 
