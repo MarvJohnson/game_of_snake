@@ -10,28 +10,51 @@ body {
   overflow: hidden;
 }
 
+body {
+  display: flex;
+  flex-direction: column;
+}
+
 h1 {
   text-align: center;
 }
 
 main {
   display: flex !important;
+  position: relative;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100%;
+  flex-grow: 1;
+}
+
+#snake-area {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  flex-grow: 1;
+  width: 50%;
+  max-width: 500px;
+  max-height: 550px;
+}
+
+#score-area {
+  display: flex;
+  gap: 20px;
 }
 
 #play-area {
   display: grid;
-  border: 3px solid var(--movement-grid-border-color, black);
-  min-height: var(--movement-grid-min-dimensions, 300px);
-  min-width: var(--movement-grid-min-dimensions, 300px);
-  max-height: var(--movement-grid-max-dimensions, 600px);
-  max-width: var(--movement-grid-max-dimensions, 600px);
+  border: 4px solid var(--movement-grid-border-color, black);
+  width: auto;
+  flex-grow: 1;
   overflow: visible;
 }
 
+.cell {
+  background-color: #eee;
+}
+
 .checkered-cell {
-  background-color: #666;
+  background-color: #ccc;
 }

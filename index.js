@@ -5,8 +5,10 @@ class Cell {
   bottom;
   left;
   currentOccupant = null;
+  originalVisual;
   constructor(element) {
     this.element = element;
+    this.originalVisual = this.element.style.background;
   }
 
   setOccupant(occupant) {
@@ -16,7 +18,7 @@ class Cell {
 
   removeOccupant() {
     this.currentOccupant = null;
-    this.element.style.background = 'transparent';
+    this.element.style.background = this.originalVisual;
   }
 
   isOccupied() {
@@ -110,6 +112,7 @@ class Food extends Occupant {
     game.foodItemsOnGrid--;
     game.changeScore(this.value);
     addSnakeSegment();
+    spawnFoodRandomly();
   }
 }
 
@@ -245,6 +248,9 @@ const placeAllCellElements = () => {
     for (let x = 0; x < settings.movementGridDimensions.x; x++) {
       let newCellElement = placeNewCellElement();
       let newCell = new Cell(newCellElement);
+      if ((!(y % 2) && x % 2) || (y % 2 && !(x % 2))) {
+        newCell.element.classList.add('checkered-cell');
+      }
       movementGridCells.push(newCell);
     }
   }
