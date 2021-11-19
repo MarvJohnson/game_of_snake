@@ -71,3 +71,5 @@ Accessability:
 - [Color Contrasting](https://webaim.org/resources/contrastchecker/)
 
 Fonts: [Google Fonts](https://fonts.google.com/)
+
+CSS Normalize: [Normalize.css](https://necolas.github.io/normalize.css/)
