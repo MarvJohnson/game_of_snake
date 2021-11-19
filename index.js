@@ -214,6 +214,12 @@ const getMiddleCellOfMovementGrid = () => {
   ];
 };
 
+const getRandomMovementGridCell = () => {
+  return movementGridCells[
+    Math.floor(Math.random() * movementGridCells.length)
+  ];
+};
+
 const runMovementCellNeighborVisualizer = (speed = 500) => {
   for (let i = 0; i < movementGridCells.length; i++) {
     let currentCell = movementGridCells[i];
@@ -306,9 +312,13 @@ const setupMovementGrid = () => {
 const spawnFoodRandomly = () => {
   let randomFood =
     game.foodItems[Math.floor(Math.random() * game.foodItems.length)];
-  let randomGridCell =
-    movementGridCells[Math.floor(Math.random() * movementGridCells.length)];
-  randomFood.setOccupiedCell(randomGridCell);
+
+  let randomCell = getRandomMovementGridCell();
+  while (randomCell.isOccupied()) {
+    randomCell = getRandomMovementGridCell();
+  }
+
+  randomFood.setOccupiedCell(randomCell);
 };
 
 const addSnakeSegment = () => {
