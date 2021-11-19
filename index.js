@@ -1,57 +1,3 @@
-// --Global Variables-- //
-const playArea = document.getElementById('play-area');
-const movementGridCells = [];
-
-const settings = {
-  movementGridDimensions: {
-    x: 21,
-    y: 21
-  }
-};
-
-const game = {
-  state: 'pre-game',
-  score: 0,
-  foodEaten: 0,
-  foodItems: [new Food('Apple', red, 10, false)],
-  foodItemCount: 0,
-  currentMoveDirection: 'right',
-  loopTimeout: undefined,
-  tickSpeed: 100,
-  setMoveDirection(movementKey) {
-    switch (movementKey) {
-      case 'w':
-        this.currentMoveDirection =
-          SnakeSegment.snakeHead.lastOccupiedCell !==
-          SnakeSegment.snakeHead.currentlyOccupiedCell.up
-            ? 'up'
-            : this.currentMoveDirection;
-        break;
-      case 'a':
-        this.currentMoveDirection =
-          SnakeSegment.snakeHead.lastOccupiedCell !==
-          SnakeSegment.snakeHead.currentlyOccupiedCell.left
-            ? 'left'
-            : this.currentMoveDirection;
-        break;
-      case 's':
-        this.currentMoveDirection =
-          SnakeSegment.snakeHead.lastOccupiedCell !==
-          SnakeSegment.snakeHead.currentlyOccupiedCell.down
-            ? 'down'
-            : this.currentMoveDirection;
-        break;
-      case 'd':
-        this.currentMoveDirection =
-          SnakeSegment.snakeHead.lastOccupiedCell !==
-          SnakeSegment.snakeHead.currentlyOccupiedCell.right
-            ? 'right'
-            : this.currentMoveDirection;
-        break;
-    }
-  }
-};
-
 // --Classes-- //
 class Cell {
   up;
@@ -157,6 +103,72 @@ class Food extends Occupant {
   }
 }
 
+class Apple extends Food {
+  constructor() {
+    super('Apple', 'red', 10, false);
+  }
+}
+
+class Banana extends Food {
+  constructor() {
+    super('Banana', 'red', 10, false);
+  }
+}
+
+// --Global Variables-- //
+const playArea = document.getElementById('play-area');
+const movementGridCells = [];
+
+const settings = {
+  movementGridDimensions: {
+    x: 21,
+    y: 21
+  }
+};
+
+const game = {
+  state: 'pre-game',
+  score: 0,
+  foodEaten: 0,
+  foodItems: [new Apple(), new Banana()],
+  foodItemCount: 0,
+  currentMoveDirection: 'right',
+  loopTimeout: undefined,
+  tickSpeed: 100,
+  setMoveDirection(movementKey) {
+    switch (movementKey) {
+      case 'w':
+        this.currentMoveDirection =
+          SnakeSegment.snakeHead.lastOccupiedCell !==
+          SnakeSegment.snakeHead.currentlyOccupiedCell.up
+            ? 'up'
+            : this.currentMoveDirection;
+        break;
+      case 'a':
+        this.currentMoveDirection =
+          SnakeSegment.snakeHead.lastOccupiedCell !==
+          SnakeSegment.snakeHead.currentlyOccupiedCell.left
+            ? 'left'
+            : this.currentMoveDirection;
+        break;
+      case 's':
+        this.currentMoveDirection =
+          SnakeSegment.snakeHead.lastOccupiedCell !==
+          SnakeSegment.snakeHead.currentlyOccupiedCell.down
+            ? 'down'
+            : this.currentMoveDirection;
+        break;
+      case 'd':
+        this.currentMoveDirection =
+          SnakeSegment.snakeHead.lastOccupiedCell !==
+          SnakeSegment.snakeHead.currentlyOccupiedCell.right
+            ? 'right'
+            : this.currentMoveDirection;
+        break;
+    }
+  }
+};
+
 // --Functions-- //
 const getMiddleCellOfMovementGrid = () => {
   return movementGridCells[
@@ -253,6 +265,14 @@ const setupMovementGrid = () => {
   setupCellNeighbors();
 };
 
+const spawnFoodRandomly = () => {
+  let randomFood =
+    game.foodItems[Math.floor(Math.random() * game.foodItems.length)];
+  let randomGridCell =
+    movementGridCells[Math.floor(Math.random() * movementGridCells.length)];
+  randomFood.setOccupiedCell(randomGridCell);
+};
+
 const increaseSnakeLength = () => {
   let newSnakeSegment = new SnakeSegment(
     SnakeSegment.snakeHead.getTail().lastOccupiedCell,
@@ -293,6 +313,10 @@ document.onkeydown = (e) => {
 
   if (e.key === 'e') {
     increaseSnakeLength();
+  }
+
+  if (e.key === 'q') {
+    spawnFoodRandomly();
   }
 };
 
