@@ -42,7 +42,12 @@ main {
 
 #score-area {
   display: flex;
-  gap: 20px;
+  /* gap: 100px; */
+}
+
+#score-area > p {
+  /* width: 120px; */
+  margin: 0 5px;
 }
 
 #play-area {

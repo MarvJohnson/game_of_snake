@@ -37,8 +37,6 @@ class Occupant {
 }
 
 class SnakeSegment extends Occupant {
-  static snakeHead;
-  static snakeLength = 1;
   static snakeVisual = '#2e8bd2';
   currentlyOccupiedCell;
   lastOccupiedCell = null;
@@ -46,6 +44,26 @@ class SnakeSegment extends Occupant {
   constructor(currentlyOccupiedCell, snakeVisual) {
     super(snakeVisual);
     this.setOccupiedCell(currentlyOccupiedCell);
+  }
+
+  setOccupiedCell(cell) {
+    if (Boolean(this.currentlyOccupiedCell)) {
+      if (this.currentlyOccupiedCell === cell) {
+        return;
+      }
+      this.currentlyOccupiedCell.removeOccupant();
+    }
+
+    super.setOccupiedCell(cell);
+    this.lastOccupiedCell = this.currentlyOccupiedCell;
+    this.currentlyOccupiedCell = cell;
+  }
+}
+
+class SnakeHead extends SnakeSegment {
+  static snakeLength = 1;
+  constructor(currentlyOccupiedCell, snakeVisual) {
+    super(currentlyOccupiedCell, snakeVisual);
   }
 
   setOccupiedCell(cell) {
@@ -59,23 +77,11 @@ class SnakeSegment extends Occupant {
       return;
     }
 
-    if (
-      this === SnakeSegment.snakeHead &&
-      cell.currentOccupant instanceof Food
-    ) {
+    if (cell.currentOccupant instanceof Food) {
       cell.currentOccupant.eat();
     }
 
-    if (Boolean(this.currentlyOccupiedCell)) {
-      if (this.currentlyOccupiedCell === cell) {
-        return;
-      }
-      this.currentlyOccupiedCell.removeOccupant();
-    }
-
     super.setOccupiedCell(cell);
-    this.lastOccupiedCell = this.currentlyOccupiedCell;
-    this.currentlyOccupiedCell = cell;
   }
 
   pullOtherSegments() {
@@ -131,6 +137,9 @@ class Banana extends Food {
 // --Global Variables-- //
 const playArea = document.getElementById('play-area');
 const scoreValue = document.getElementById('score-value');
+const previousBestScoreValue = document.getElementById(
+  'previous-best-score-value'
+);
 const foodEatenValue = document.getElementById('food-eaten-value');
 const movementGridCells = [];
 
@@ -144,6 +153,7 @@ const settings = {
 const game = {
   state: 'pre-game',
   score: 0,
+  previousBestScore: 0,
   foodEaten: 0,
   foodItems: [new Apple(), new Banana()],
   foodItemsOnGrid: 0,
@@ -154,29 +164,25 @@ const game = {
     switch (movementKey) {
       case 'w':
         this.currentMoveDirection =
-          SnakeSegment.snakeHead.lastOccupiedCell !==
-          SnakeSegment.snakeHead.currentlyOccupiedCell.up
+          snakeHead.lastOccupiedCell !== snakeHead.currentlyOccupiedCell.up
             ? 'up'
             : this.currentMoveDirection;
         break;
       case 'a':
         this.currentMoveDirection =
-          SnakeSegment.snakeHead.lastOccupiedCell !==
-          SnakeSegment.snakeHead.currentlyOccupiedCell.left
+          snakeHead.lastOccupiedCell !== snakeHead.currentlyOccupiedCell.left
             ? 'left'
             : this.currentMoveDirection;
         break;
       case 's':
         this.currentMoveDirection =
-          SnakeSegment.snakeHead.lastOccupiedCell !==
-          SnakeSegment.snakeHead.currentlyOccupiedCell.down
+          snakeHead.lastOccupiedCell !== snakeHead.currentlyOccupiedCell.down
             ? 'down'
             : this.currentMoveDirection;
         break;
       case 'd':
         this.currentMoveDirection =
-          SnakeSegment.snakeHead.lastOccupiedCell !==
-          SnakeSegment.snakeHead.currentlyOccupiedCell.right
+          snakeHead.lastOccupiedCell !== snakeHead.currentlyOccupiedCell.right
             ? 'right'
             : this.currentMoveDirection;
         break;
@@ -184,6 +190,12 @@ const game = {
   },
   changeScore(amount) {
     this.score += amount;
+
+    if (this.score > this.previousBestScore) {
+      this.previousBestScore = this.score;
+      previousBestScoreValue.innerText = this.previousBestScore.toString();
+    }
+
     scoreValue.innerText = this.score.toString();
   },
   changeFoodEaten(amount) {
@@ -301,18 +313,18 @@ const spawnFoodRandomly = () => {
 
 const addSnakeSegment = () => {
   let newSnakeSegment = new SnakeSegment(
-    SnakeSegment.snakeHead.getTail().lastOccupiedCell,
+    snakeHead.getTail().lastOccupiedCell,
     SnakeSegment.snakeVisual
   );
-  SnakeSegment.snakeHead.getTail().nextSegment = newSnakeSegment;
-  SnakeSegment.snakeLength++;
+  snakeHead.getTail().nextSegment = newSnakeSegment;
+  SnakeHead.snakeLength++;
 };
 
 const moveSnake = () => {
-  SnakeSegment.snakeHead.setOccupiedCell(
-    SnakeSegment.snakeHead.currentlyOccupiedCell[game.currentMoveDirection]
+  snakeHead.setOccupiedCell(
+    snakeHead.currentlyOccupiedCell[game.currentMoveDirection]
   );
-  SnakeSegment.snakeHead.pullOtherSegments();
+  snakeHead.pullOtherSegments();
 };
 
 const gameLoop = () => {
@@ -348,11 +360,6 @@ document.onkeydown = (e) => {
 
 // --Main-- //
 setupMovementGrid();
-
-SnakeSegment.snakeHead = new SnakeSegment(
-  getMiddleCellOfMovementGrid(),
-  '#2574B1'
-);
-console.log(SnakeSegment.snakeHead);
-console.log(game.foodItems[0] instanceof Food);
+const snakeHead = new SnakeHead(getMiddleCellOfMovementGrid(), '#2574B1');
 startGame();
+spawnFoodRandomly();
