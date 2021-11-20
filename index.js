@@ -117,8 +117,6 @@ class SnakeHead extends SnakeSegment {
       currentSegment.nextSegment = null;
       currentSegment = temp;
     }
-
-    this.setOccupiedCell(getMiddleCellOfMovementGrid());
   }
 }
 
@@ -151,8 +149,141 @@ class Banana extends Food {
   }
 }
 
+// State Machine
+class State {
+  constructor() {}
+
+  setMoveDirection(movementKey) {}
+  pauseGame() {}
+  quitGame() {
+    game.stateMachine.setState(new PreGame());
+  }
+  enter() {}
+  exit() {}
+}
+
+class PreGame extends State {
+  constructor() {
+    super();
+  }
+
+  quitGame() {}
+
+  enter() {
+    resetMovementGrid();
+    snakeHead.reset();
+    changeMenu('main-menu');
+  }
+}
+
+class Running extends State {
+  constructor() {
+    super();
+  }
+
+  setMoveDirection(movementKey) {
+    switch (movementKey) {
+      case 'w':
+        game.currentMoveDirection =
+          snakeHead.lastOccupiedCell !== snakeHead.currentlyOccupiedCell.up
+            ? 'up'
+            : game.currentMoveDirection;
+        break;
+      case 'a':
+        game.currentMoveDirection =
+          snakeHead.lastOccupiedCell !== snakeHead.currentlyOccupiedCell.left
+            ? 'left'
+            : game.currentMoveDirection;
+        break;
+      case 's':
+        game.currentMoveDirection =
+          snakeHead.lastOccupiedCell !== snakeHead.currentlyOccupiedCell.down
+            ? 'down'
+            : game.currentMoveDirection;
+        break;
+      case 'd':
+        game.currentMoveDirection =
+          snakeHead.lastOccupiedCell !== snakeHead.currentlyOccupiedCell.right
+            ? 'right'
+            : game.currentMoveDirection;
+        break;
+    }
+  }
+
+  pauseGame() {
+    game.stateMachine.setState(new Paused());
+  }
+
+  enter() {
+    changeMenu('');
+    gameLoop();
+  }
+}
+
+class Paused extends State {
+  constructor() {
+    super();
+  }
+
+  pauseGame() {
+    game.stateMachine.setState(new Running());
+  }
+
+  enter() {
+    changeMenu('pause-menu');
+    stopGame();
+  }
+}
+
+class GameOver extends State {
+  constructor() {
+    super();
+  }
+
+  enter() {
+    changeMenu('game-over-menu');
+    stopGame();
+  }
+}
+
+class StateMachine {
+  #state;
+  constructor(initialState) {
+    this.#state = initialState;
+  }
+
+  setState(newState) {
+    if (this.#state) {
+      this.#state.exit();
+    }
+
+    this.#state = newState;
+    this.#state.enter();
+  }
+
+  getState() {
+    return this.#state;
+  }
+}
+//
+
 // --Global Variables-- //
 const playArea = document.getElementById('play-area');
+const playBtn = document.querySelector(
+  '#main-menu .menu-options-area > button'
+);
+const settingsBtn = document.querySelector(
+  '#main-menu .menu-options-area > button:nth-child(2)'
+);
+const aboutBtn = document.querySelector(
+  '#main-menu .menu-options-area > button:nth-child(3)'
+);
+const resumeBtn = document.querySelector(
+  '#pause-menu .menu-options-area > button'
+);
+const backBtns = document.querySelectorAll('.menu-back-btn');
+const resetBtns = document.querySelectorAll('.reset-btn');
+const quitBtns = document.querySelectorAll('.quit-btn');
 const scoreValue = document.getElementById('score-value');
 const previousBestScoreValue = document.getElementById(
   'previous-best-score-value'
@@ -168,8 +299,9 @@ const settings = {
 };
 
 const game = {
-  state: 'pre-game',
+  stateMachine: new StateMachine(new PreGame()),
   score: 0,
+  menuStack: ['main-menu'],
   previousBestScore: 0,
   foodEaten: 0,
   foodItems: [new Apple(), new Banana()],
@@ -178,39 +310,13 @@ const game = {
   currentMoveDirection: 'right',
   loopTimeout: undefined,
   tickSpeed: 80,
-  setMoveDirection(movementKey) {
-    switch (movementKey) {
-      case 'w':
-        this.currentMoveDirection =
-          snakeHead.lastOccupiedCell !== snakeHead.currentlyOccupiedCell.up
-            ? 'up'
-            : this.currentMoveDirection;
-        break;
-      case 'a':
-        this.currentMoveDirection =
-          snakeHead.lastOccupiedCell !== snakeHead.currentlyOccupiedCell.left
-            ? 'left'
-            : this.currentMoveDirection;
-        break;
-      case 's':
-        this.currentMoveDirection =
-          snakeHead.lastOccupiedCell !== snakeHead.currentlyOccupiedCell.down
-            ? 'down'
-            : this.currentMoveDirection;
-        break;
-      case 'd':
-        this.currentMoveDirection =
-          snakeHead.lastOccupiedCell !== snakeHead.currentlyOccupiedCell.right
-            ? 'right'
-            : this.currentMoveDirection;
-        break;
-    }
-  },
+
   updateScoreDisplays() {
     scoreValue.innerText = this.score.toString();
     previousBestScoreValue.innerText = this.previousBestScore.toString();
     foodEatenValue.innerText = this.foodEaten.toString();
   },
+
   changeScore(amount) {
     this.score += amount;
 
@@ -220,11 +326,13 @@ const game = {
 
     this.updateScoreDisplays();
   },
+
   changeFoodEaten(amount) {
     this.foodEaten += amount;
     this.updateScoreDisplays();
   },
-  resetScores(includePb = false) {
+
+  resetScores(includePb) {
     this.score = 0;
     this.foodEaten = 0;
 
@@ -234,6 +342,7 @@ const game = {
 
     this.updateScoreDisplays();
   },
+
   reset() {
     stopGame();
     resetMovementGrid();
@@ -243,6 +352,7 @@ const game = {
     startGame();
   }
 };
+//
 
 // --Functions-- //
 const getMiddleCellOfMovementGrid = () => {
@@ -393,18 +503,34 @@ const stopGame = () => {
 };
 
 const loseGame = () => {
-  stopGame();
-  console.log('Game over!');
+  game.stateMachine.setState(new GameOver());
 };
 
 const startGame = () => {
   snakeHead.setOccupiedCell(getMiddleCellOfMovementGrid());
   spawnFoodRandomly();
-  gameLoop();
+  game.stateMachine.setState(new Running());
 };
+
+const changeMenu = (menuClass, track = false) => {
+  document
+    .querySelectorAll('.show-menu')
+    .forEach((element) => element.classList.remove('show-menu'));
+  let menu = document.getElementById(menuClass);
+
+  if (menu) {
+    if (track) {
+      game.menuStack.push(menuClass);
+    }
+
+    menu.classList.add('show-menu');
+  }
+};
+//
+
 // --Event Listeners-- //
 document.onkeydown = (e) => {
-  game.setMoveDirection(e.key);
+  game.stateMachine.getState().setMoveDirection(e.key);
 
   if (e.key === 'e') {
     addSnakeSegment();
@@ -417,8 +543,44 @@ document.onkeydown = (e) => {
   if (e.key === 'r') {
     game.reset();
   }
+
+  if (e.key === 'Escape') {
+    game.stateMachine.getState().pauseGame();
+  }
 };
+
+playBtn.addEventListener('click', startGame);
+settingsBtn.addEventListener('click', () => {
+  changeMenu('settings-menu', true);
+});
+aboutBtn.addEventListener('click', () => {
+  changeMenu('about-menu', true);
+});
+resumeBtn.addEventListener('click', () => {
+  game.stateMachine.getState().pauseGame();
+});
+backBtns.forEach((element) => {
+  element.addEventListener('click', () => {
+    if (game.menuStack.length > 1) {
+      game.menuStack.pop();
+      changeMenu(game.menuStack[game.menuStack.length - 1]);
+    }
+  });
+});
+resetBtns.forEach((element) => {
+  element.addEventListener('click', () => {
+    game.reset();
+  });
+});
+quitBtns.forEach((element) => {
+  element.addEventListener('click', () => {
+    game.stateMachine.getState().quitGame();
+  });
+});
+//
 
 // --Main-- //
 setupMovementGrid();
 const snakeHead = new SnakeHead(null, '#2574B1');
+
+//

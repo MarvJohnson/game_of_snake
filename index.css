@@ -50,10 +50,6 @@ main {
   display: flex;
   position: relative;
   flex-direction: column;
-  flex-grow: 1;
-  width: 50%;
-  max-width: 500px;
-  max-height: 550px;
 }
 
 #score-area {
@@ -69,24 +65,16 @@ main {
   display: grid;
   border: var(--movement-grid-border-width) solid
     var(--movement-grid-border-color, black);
-  width: auto;
-  flex-grow: 1;
-  overflow: visible;
+  width: 600px;
+  height: 600px;
+  box-sizing: border-box;
 }
 
-#play-area.main-menu > .menu {
+#play-area > .menu.show-menu {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-}
-
-.menu h2 {
-  font-size: 30px;
-}
-
-.menu button {
-  font-size: 20px;
 }
 
 .menu {
@@ -95,6 +83,14 @@ main {
   width: 100%;
   height: 100%;
   background-color: rgba(100, 100, 100, 0.5);
+}
+
+.menu h2 {
+  font-size: 30px;
+}
+
+.menu button {
+  font-size: 20px;
 }
 
 .menu > div {
@@ -107,6 +103,19 @@ main {
 .menu button {
   background-color: transparent;
   border: none;
+}
+
+.menu .menu-back-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 20px;
+  border: 1px solid var(--main-text-color, #9198a1);
+}
+
+.menu .menu-back-btn:hover {
+  background-color: var(--main-text-color, #9198a1);
+  color: var(--main-background-color, #273546);
 }
 
 .menu-options-area {
@@ -125,10 +134,21 @@ main {
   background-color: var(--main-text-color, #9198a1);
 }
 
+#settings-menu .menu-options-area {
+  text-align: center;
+}
+
 .cell {
   background-color: #1f2836;
 }
 
 .checkered-cell {
   background-color: #263445;
+}
+
+@media screen and (max-width: 700px) {
+  #play-area {
+    width: 400px;
+    height: 400px;
+  }
 }
