@@ -246,6 +246,27 @@ class GameOver extends State {
   }
 }
 
+class Countdown extends State {
+  constructor() {
+    super();
+  }
+
+  enter() {
+    countdownContainer.className = 'counting';
+    game.countdown = game.initialCountdown;
+    countdownDisplay.setAttribute(
+      'style',
+      `animation-iteration-count: ${game.countdown + 1};`
+    );
+    updateCountdownDisplay();
+    changeMenu();
+  }
+
+  exit() {
+    countdownContainer.className = '';
+  }
+}
+
 class StateMachine {
   #state;
   constructor(initialState) {
@@ -268,6 +289,8 @@ class StateMachine {
 //
 
 // --Global Variables-- //
+const countdownContainer = document.querySelector('#countdown');
+const countdownDisplay = countdownContainer.querySelector('p');
 const playArea = document.getElementById('play-area');
 const playBtn = document.querySelector(
   '#main-menu .menu-options-area > button'
@@ -301,6 +324,8 @@ const settings = {
 const game = {
   stateMachine: new StateMachine(new PreGame()),
   score: 0,
+  initialCountdown: 3,
+  countdown: 3,
   menuStack: ['main-menu'],
   previousBestScore: 0,
   foodEaten: 0,
@@ -349,7 +374,7 @@ const game = {
     this.resetScores();
     snakeHead.reset();
     this.currentMoveDirection = this.initialMoveDirection;
-    startGame();
+    this.stateMachine.setState(new Countdown());
   }
 };
 //
@@ -512,6 +537,14 @@ const startGame = () => {
   game.stateMachine.setState(new Running());
 };
 
+const updateCountdownDisplay = () => {
+  countdownDisplay.innerText = game.countdown === 0 ? 'Begin!' : game.countdown;
+};
+
+const stopCountdown = () => {
+  countdownContainer.className = '';
+};
+
 const changeMenu = (menuClass, track = false) => {
   document
     .querySelectorAll('.show-menu')
@@ -549,7 +582,9 @@ document.onkeydown = (e) => {
   }
 };
 
-playBtn.addEventListener('click', startGame);
+playBtn.addEventListener('click', () => {
+  game.stateMachine.setState(new Countdown());
+});
 settingsBtn.addEventListener('click', () => {
   changeMenu('settings-menu', true);
 });
@@ -576,6 +611,13 @@ quitBtns.forEach((element) => {
   element.addEventListener('click', () => {
     game.stateMachine.getState().quitGame();
   });
+});
+countdownDisplay.addEventListener('animationiteration', () => {
+  game.countdown--;
+  updateCountdownDisplay();
+});
+countdownDisplay.addEventListener('animationend', () => {
+  startGame();
 });
 //
 
