@@ -134,12 +134,13 @@ class Food extends Occupant {
     game.changeFoodEaten(1);
     addSnakeSegment();
     spawnFoodRandomly();
+    settings.playSound('snakeEatSound');
   }
 }
 
 class Apple extends Food {
   constructor() {
-    super('Apple', 'yellow', 10, false);
+    super('Apple', 'red', 30, false);
   }
 }
 
@@ -172,6 +173,8 @@ class PreGame extends State {
   enter() {
     game.reset();
     changeMenu('main-menu');
+    settings.sounds.gameplayMusic.pause();
+    settings.sounds.gameplayMusic.currentTime = 0;
   }
 }
 
@@ -216,6 +219,7 @@ class Running extends State {
   enter() {
     changeMenu('');
     gameLoop();
+    settings.playSound('gameplayMusic');
   }
 }
 
@@ -231,6 +235,11 @@ class Paused extends State {
   enter() {
     changeMenu('pause-menu');
     stopGame();
+    settings.sounds.gameplayMusic.pause();
+  }
+
+  exit() {
+    settings.playSound('gameplayMusic');
   }
 }
 
@@ -306,6 +315,7 @@ const settingsBtn = document.querySelector(
 );
 const difficultyBtns = document.querySelectorAll('.difficulty-btn');
 const soundBtns = document.querySelectorAll('.sound-btn');
+const volumeSlider = document.getElementById('sound-volume-slider');
 const aboutBtn = document.querySelector(
   '#main-menu .menu-options-area > button:nth-child(3)'
 );
@@ -323,8 +333,6 @@ const previousBestScoreValue = document.getElementById(
 const foodEatenValue = document.getElementById('food-eaten-value');
 const movementGridCells = [];
 
-const buttonClickSound = new Audio('sounds/button-click-sound.wav');
-
 const settings = {
   movementGridDimensions: {
     x: 21,
@@ -332,20 +340,42 @@ const settings = {
   },
   sound: true,
   volume: 0.5,
+  sounds: {
+    buttonClickSound: new Audio('sounds/button-click-sound.wav'),
+    snakeEatSound: new Audio('sounds/snake-eat-sound.wav'),
+    gameplayMusic: new Audio('sounds/gameplay-music.wav')
+  },
 
-  playButtonClickSound() {
-    if (this.sound) {
-      buttonClickSound.play();
+  playSound(soundName) {
+    if (!this.sound) {
+      return;
+    }
+
+    let selectedSound = this.sounds[soundName];
+    if (selectedSound) {
+      selectedSound.volume = this.volume;
+      selectedSound.play();
     }
   },
 
   enableSound() {
-    this.playButtonClickSound();
+    this.playSound('buttonClickSound');
     this.sound = true;
   },
 
   disableSound() {
     this.sound = false;
+  },
+
+  updateSoundVolumes() {
+    for (let prop in this.sounds) {
+      this.sounds[prop].volume = this.volume;
+    }
+  },
+
+  setVolume(newVolume) {
+    this.volume = newVolume;
+    this.updateSoundVolumes();
   }
 };
 
@@ -671,12 +701,16 @@ soundBtns.forEach((element) => {
 });
 allBtns.forEach((element) => {
   element.addEventListener('click', () => {
-    settings.playButtonClickSound();
+    settings.playSound('buttonClickSound');
   });
+});
+volumeSlider.addEventListener('input', (e) => {
+  settings.setVolume(e.target.value);
 });
 //
 
 // --Main-- //
+settings.sounds.gameplayMusic.loop = true;
 game.setDifficulty('medium');
 setupMovementGrid();
 const snakeHead = new SnakeHead(null, '#2574B1');
