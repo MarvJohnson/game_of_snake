@@ -305,6 +305,7 @@ const settingsBtn = document.querySelector(
   '#main-menu .menu-options-area > button:nth-child(2)'
 );
 const difficultyBtns = document.querySelectorAll('.difficulty-btn');
+const soundBtns = document.querySelectorAll('.sound-btn');
 const aboutBtn = document.querySelector(
   '#main-menu .menu-options-area > button:nth-child(3)'
 );
@@ -315,11 +316,14 @@ const backBtns = document.querySelectorAll('.menu-back-btn');
 const resetBtns = document.querySelectorAll('.reset-btn');
 const quitBtns = document.querySelectorAll('.quit-btn');
 const scoreValue = document.getElementById('score-value');
+const allBtns = document.querySelectorAll('button');
 const previousBestScoreValue = document.getElementById(
   'previous-best-score-value'
 );
 const foodEatenValue = document.getElementById('food-eaten-value');
 const movementGridCells = [];
+
+const buttonClickSound = new Audio('sounds/button-click-sound.wav');
 
 const settings = {
   movementGridDimensions: {
@@ -327,7 +331,22 @@ const settings = {
     y: 21
   },
   sound: true,
-  volume: 0.5
+  volume: 0.5,
+
+  playButtonClickSound() {
+    if (this.sound) {
+      buttonClickSound.play();
+    }
+  },
+
+  enableSound() {
+    this.playButtonClickSound();
+    this.sound = true;
+  },
+
+  disableSound() {
+    this.sound = false;
+  }
 };
 
 const game = {
@@ -633,6 +652,26 @@ countdownDisplay.addEventListener('animationend', () => {
 difficultyBtns.forEach((element) => {
   element.addEventListener('click', () => {
     game.setDifficulty(element.innerText);
+  });
+});
+soundBtns.forEach((element) => {
+  element.addEventListener('click', () => {
+    soundBtns.forEach((element) => {
+      element.classList.remove('selected');
+    });
+
+    element.classList.add('selected');
+
+    if (element.innerText === 'on') {
+      settings.enableSound();
+    } else {
+      settings.disableSound();
+    }
+  });
+});
+allBtns.forEach((element) => {
+  element.addEventListener('click', () => {
+    settings.playButtonClickSound();
   });
 });
 //
