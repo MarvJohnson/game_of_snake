@@ -13,12 +13,15 @@ class Cell {
 
   setOccupant(occupant) {
     this.currentOccupant = occupant;
-    this.element.style.background = this.currentOccupant.cellVisual;
+    this.element.classList.add(this.currentOccupant.cellVisual);
   }
 
   removeOccupant() {
+    if (this.currentOccupant) {
+      this.element.classList.remove(this.currentOccupant.cellVisual);
+    }
+
     this.currentOccupant = null;
-    this.element.style.background = this.originalVisual;
   }
 
   isOccupied() {
@@ -37,7 +40,7 @@ class Occupant {
 }
 
 class SnakeSegment extends Occupant {
-  static snakeVisual = '#2e8bd2';
+  static snakeVisual = 'snake-segment';
   currentlyOccupiedCell;
   lastOccupiedCell = null;
   nextSegment;
@@ -82,6 +85,7 @@ class SnakeHead extends SnakeSegment {
 
     if (cell.currentOccupant instanceof Food) {
       cell.currentOccupant.eat();
+      cell.removeOccupant();
     }
 
     super.setOccupiedCell(cell);
@@ -140,13 +144,13 @@ class Food extends Occupant {
 
 class Apple extends Food {
   constructor() {
-    super('Apple', 'red', 30, false);
+    super('Apple', 'apple', 30, false);
   }
 }
 
 class Banana extends Food {
   constructor() {
-    super('Banana', 'yellow', 10, false);
+    super('Banana', 'banana', 10, false);
   }
 }
 
@@ -236,10 +240,6 @@ class Paused extends State {
     stopGame();
     settings.sounds.gameplayMusic.pause();
   }
-
-  exit() {
-    settings.playSound('gameplayMusic');
-  }
 }
 
 class GameOver extends State {
@@ -303,6 +303,7 @@ class Difficulty {
 //
 
 // --Global Variables-- //
+const htmlElement = document.firstElementChild;
 const countdownContainer = document.querySelector('#countdown');
 const countdownDisplay = countdownContainer.querySelector('p');
 const playArea = document.getElementById('play-area');
@@ -315,6 +316,8 @@ const settingsBtn = document.querySelector(
 const difficultyBtns = document.querySelectorAll('.difficulty-btn');
 const soundBtns = document.querySelectorAll('.sound-btn');
 const volumeSlider = document.getElementById('sound-volume-slider');
+const musicBtns = document.querySelectorAll('.gameplay-music-sound-btn');
+const darkModeBtns = document.querySelectorAll('.dark-mode-btn');
 const aboutBtn = document.querySelector(
   '#main-menu .menu-options-area > button:nth-child(3)'
 );
@@ -345,9 +348,17 @@ const settings = {
     gameplayMusic: new Audio('sounds/gameplay-music.wav')
   },
 
+  enableDarkMode() {
+    htmlElement.setAttribute('color-scheme', 'dark');
+  },
+
+  disableDarkMode() {
+    htmlElement.setAttribute('color-scheme', 'light');
+  },
+
   resetGameplayMusic() {
-    this.sounds.gameplayMusic.pause();
     this.sounds.gameplayMusic.currentTime = 0;
+    this.sounds.gameplayMusic.pause();
   },
 
   playSound(soundName) {
@@ -732,12 +743,26 @@ allBtns.forEach((element) => {
 volumeSlider.addEventListener('input', (e) => {
   settings.setVolume(e.target.value);
 });
+darkModeBtns.forEach((element) => {
+  element.addEventListener('click', () => {
+    darkModeBtns.forEach((element) => {
+      element.classList.remove('selected');
+    });
+
+    element.classList.add('selected');
+    if (element.innerText === 'on') {
+      settings.enableDarkMode();
+    } else {
+      settings.disableDarkMode();
+    }
+  });
+});
 //
 
 // --Main-- //
 settings.sounds.gameplayMusic.loop = true;
 game.setDifficulty('medium');
 setupMovementGrid();
-const snakeHead = new SnakeHead(null, '#2574B1');
+const snakeHead = new SnakeHead(null, 'snake-head');
 
 //
