@@ -51,10 +51,11 @@ Get as big as you possibly can!
 
 ### **_Future Updates_**
 
-- [ ] Add countdown timer
-- [ ] Add sounds and music
+- [x] Add sounds and music
+- [x] Add difficulty settings
+- [x] Add menu system
+- [x] Used google fonts
 - [ ] Add dark mode
-- [ ] Add difficulty settings
 
 ---
 
@@ -78,3 +79,5 @@ Image Editing:
 
 - MS Paint
 - [Gimp](https://www.gimp.org/downloads/)
+
+Music: [bensound](https://www.bensound.com)
