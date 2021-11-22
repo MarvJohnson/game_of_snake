@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@300&display=swap');
+
 * {
   --main-background-color: #273546;
   --main-text-color: #9198a1;
@@ -5,6 +7,7 @@
   --movement-grid-max-dimensions: 1000px;
   --movement-grid-border-color: #9198a1;
   --movement-grid-border-width: 4px;
+  font-family: 'Roboto Slab', serif;
 }
 
 html,
