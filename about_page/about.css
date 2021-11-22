@@ -1,0 +1,44 @@
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #273546;
+  color: #9198a1;
+}
+
+button {
+  position: absolute;
+  top: 20px;
+  left: 10px;
+  width: 150px;
+  height: 100px;
+  color: #9198a1;
+  border: 1px solid #9198a1;
+  background: transparent;
+  font-size: 20px;
+}
+
+button:hover {
+  color: #273546;
+  background: #9198a1;
+  cursor: pointer;
+}
+
+main {
+  width: 600px;
+}
+
+p {
+  text-align: justify;
+}
+
+a:visited {
+  color: #9198a1;
+}

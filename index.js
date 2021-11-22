@@ -170,8 +170,7 @@ class PreGame extends State {
   quitGame() {}
 
   enter() {
-    resetMovementGrid();
-    snakeHead.reset();
+    game.reset();
     changeMenu('main-menu');
   }
 }
@@ -286,6 +285,13 @@ class StateMachine {
     return this.#state;
   }
 }
+
+//Difficulty
+class Difficulty {
+  constructor(tickSpeed) {
+    this.tickSpeed = tickSpeed;
+  }
+}
 //
 
 // --Global Variables-- //
@@ -298,6 +304,7 @@ const playBtn = document.querySelector(
 const settingsBtn = document.querySelector(
   '#main-menu .menu-options-area > button:nth-child(2)'
 );
+const difficultyBtns = document.querySelectorAll('.difficulty-btn');
 const aboutBtn = document.querySelector(
   '#main-menu .menu-options-area > button:nth-child(3)'
 );
@@ -318,7 +325,9 @@ const settings = {
   movementGridDimensions: {
     x: 21,
     y: 21
-  }
+  },
+  sound: true,
+  volume: 0.5
 };
 
 const game = {
@@ -326,6 +335,12 @@ const game = {
   score: 0,
   initialCountdown: 3,
   countdown: 3,
+  currentDifficulty: null,
+  difficultyOptions: {
+    easy: new Difficulty(150),
+    medium: new Difficulty(100),
+    hard: new Difficulty(70)
+  },
   menuStack: ['main-menu'],
   previousBestScore: 0,
   foodEaten: 0,
@@ -334,7 +349,6 @@ const game = {
   initialMoveDirection: 'right',
   currentMoveDirection: 'right',
   loopTimeout: undefined,
-  tickSpeed: 80,
 
   updateScoreDisplays() {
     scoreValue.innerText = this.score.toString();
@@ -374,7 +388,17 @@ const game = {
     this.resetScores();
     snakeHead.reset();
     this.currentMoveDirection = this.initialMoveDirection;
-    this.stateMachine.setState(new Countdown());
+  },
+
+  setDifficulty(newDifficulty) {
+    this.currentDifficulty = this.difficultyOptions[newDifficulty];
+    difficultyBtns.forEach((element) => {
+      if (element.innerText !== newDifficulty) {
+        element.classList.remove('selected');
+      } else {
+        element.classList.add('selected');
+      }
+    });
   }
 };
 //
@@ -406,34 +430,31 @@ const runMovementCellNeighborVisualizer = (speed = 500) => {
     let currentCell = movementGridCells[i];
     setTimeout(() => {
       currentCell.element.style.backgroundColor = 'blue';
-      if (currentCell.topNeighbor) {
-        currentCell.topNeighbor.element.style.backgroundColor = 'red';
+      if (currentCell.up) {
+        currentCell.up.element.style.backgroundColor = 'red';
       }
-      if (currentCell.rightNeighbor) {
-        currentCell.rightNeighbor.element.style.backgroundColor = 'orange';
+      if (currentCell.right) {
+        currentCell.right.element.style.backgroundColor = 'orange';
       }
-      if (currentCell.bottomNeighbor) {
-        currentCell.bottomNeighbor.element.style.backgroundColor = 'yellow';
+      if (currentCell.down) {
+        currentCell.down.element.style.backgroundColor = 'yellow';
       }
-      if (currentCell.leftNeighbor) {
-        currentCell.leftNeighbor.element.style.backgroundColor = 'green';
+      if (currentCell.left) {
+        currentCell.left.element.style.backgroundColor = 'green';
       }
       setTimeout(() => {
         currentCell.element.style.backgroundColor = 'transparent';
-        if (currentCell.topNeighbor) {
-          currentCell.topNeighbor.element.style.backgroundColor = 'transparent';
+        if (currentCell.up) {
+          currentCell.up.element.style.backgroundColor = 'transparent';
         }
-        if (currentCell.rightNeighbor) {
-          currentCell.rightNeighbor.element.style.backgroundColor =
-            'transparent';
+        if (currentCell.right) {
+          currentCell.right.element.style.backgroundColor = 'transparent';
         }
-        if (currentCell.bottomNeighbor) {
-          currentCell.bottomNeighbor.element.style.backgroundColor =
-            'transparent';
+        if (currentCell.down) {
+          currentCell.down.element.style.backgroundColor = 'transparent';
         }
-        if (currentCell.leftNeighbor) {
-          currentCell.leftNeighbor.element.style.backgroundColor =
-            'transparent';
+        if (currentCell.left) {
+          currentCell.left.element.style.backgroundColor = 'transparent';
         }
       }, speed / 2);
     }, speed + speed * i);
@@ -519,7 +540,7 @@ const moveSnake = () => {
 };
 
 const gameLoop = () => {
-  game.loopTimeout = setTimeout(gameLoop, game.tickSpeed);
+  game.loopTimeout = setTimeout(gameLoop, game.currentDifficulty.tickSpeed);
   moveSnake();
 };
 
@@ -565,18 +586,6 @@ const changeMenu = (menuClass, track = false) => {
 document.onkeydown = (e) => {
   game.stateMachine.getState().setMoveDirection(e.key);
 
-  if (e.key === 'e') {
-    addSnakeSegment();
-  }
-
-  if (e.key === 'q') {
-    spawnFoodRandomly();
-  }
-
-  if (e.key === 'r') {
-    game.reset();
-  }
-
   if (e.key === 'Escape') {
     game.stateMachine.getState().pauseGame();
   }
@@ -589,7 +598,8 @@ settingsBtn.addEventListener('click', () => {
   changeMenu('settings-menu', true);
 });
 aboutBtn.addEventListener('click', () => {
-  changeMenu('about-menu', true);
+  // https://www.freecodecamp.org/news/html-button-link-code-examples-how-to-make-html-hyperlinks-using-the-href-attribute-on-tags/
+  window.location.href = 'about_page/about.html';
 });
 resumeBtn.addEventListener('click', () => {
   game.stateMachine.getState().pauseGame();
@@ -605,6 +615,7 @@ backBtns.forEach((element) => {
 resetBtns.forEach((element) => {
   element.addEventListener('click', () => {
     game.reset();
+    game.stateMachine.setState(new Countdown());
   });
 });
 quitBtns.forEach((element) => {
@@ -619,9 +630,15 @@ countdownDisplay.addEventListener('animationiteration', () => {
 countdownDisplay.addEventListener('animationend', () => {
   startGame();
 });
+difficultyBtns.forEach((element) => {
+  element.addEventListener('click', () => {
+    game.setDifficulty(element.innerText);
+  });
+});
 //
 
 // --Main-- //
+game.setDifficulty('medium');
 setupMovementGrid();
 const snakeHead = new SnakeHead(null, '#2574B1');
 
