@@ -18,10 +18,10 @@
   --text2-light: hsl(var(--brand-hue), 30%, 30%);
   /* Surface colors are things like the background, borders, and other surfaces that text sits on. */
   --surface1-light: hsl(var(--brand-hue), 25%, 90%);
-  --surface2-light: hsl(var(--brand-hue), 20%, 99%);
-  --surface3-light: hsla(var(--brand-hue), 30%, 50%, 0.5);
+  --surface2-light: hsl(var(--brand-hue), 40%, 90%);
+  --surface3-light: hsla(var(--brand-hue), 20%, 70%, 0.5);
   --surface4-light: hsl(var(--brand-hue), 30%, 30%);
-  --surface5-light: hsl(var(--brand-hue), var(--brand-saturation), 10%);
+  --surface5-light: hsl(var(--brand-hue), 40%, 85%);
   --food1-light: hsl(calc((var(--brand-hue) + 180)), 40%, 60%);
   --food2-light: hsl(calc((var(--brand-hue) + 90)), 40%, 60%);
   --snake-segment-light: hsl(calc((var(--brand-hue))), 40%, 60%);
@@ -33,7 +33,7 @@
   --surface2: var(--surface2-light);
   --surface3: var(--surface3-light);
   --surface4: var(--surface4-light);
-  --surface5: var(var(--surface5-light));
+  --surface5: var(--surface5-light);
   --food1: var(--food1-light);
   --food2: var(--food2-light);
   --snake-segment: var(--snake-segment-light);
@@ -235,6 +235,13 @@ main {
 
 #settings-menu .menu-options-area button {
   font-size: 16px;
+  border: 1px solid transparent;
+}
+
+#settings-menu .menu-options-area button:hover {
+  background-color: transparent;
+  border: 1px solid var(--text1);
+  color: var(--text1);
 }
 
 #settings-menu .menu-options-area button.selected {
@@ -256,7 +263,7 @@ main {
   appearance: none;
   height: 10px;
   width: 10px;
-  background-color: #545b63;
+  background-color: var(--surface1);
   cursor: pointer;
 }
 

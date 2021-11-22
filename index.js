@@ -341,6 +341,7 @@ const settings = {
     y: 21
   },
   sound: true,
+  musicEnabled: true,
   volume: 0.5,
   sounds: {
     buttonClickSound: new Audio('sounds/button-click-sound.wav'),
@@ -367,7 +368,13 @@ const settings = {
     }
 
     let selectedSound = this.sounds[soundName];
-    if (selectedSound) {
+    if (selectedSound && (soundName !== 'gameplayMusic' || this.musicEnabled)) {
+      console.log(
+        'Playing',
+        selectedSound,
+        'with musicEnabled as',
+        this.musicEnabled
+      );
       selectedSound.volume = this.volume;
       selectedSound.play();
     }
@@ -380,6 +387,15 @@ const settings = {
 
   disableSound() {
     this.sound = false;
+  },
+
+  enableMusic() {
+    this.musicEnabled = true;
+  },
+
+  disableMusic() {
+    this.musicEnabled = false;
+    this.resetGameplayMusic();
   },
 
   updateSoundVolumes() {
@@ -742,6 +758,21 @@ allBtns.forEach((element) => {
 });
 volumeSlider.addEventListener('input', (e) => {
   settings.setVolume(e.target.value);
+});
+musicBtns.forEach((element) => {
+  element.addEventListener('click', () => {
+    musicBtns.forEach((element) => {
+      element.classList.remove('selected');
+    });
+
+    element.classList.add('selected');
+
+    if (musicBtns.innerText === 'on') {
+      settings.enableMusic();
+    } else {
+      settings.disableMusic();
+    }
+  });
 });
 darkModeBtns.forEach((element) => {
   element.addEventListener('click', () => {
