@@ -173,8 +173,7 @@ class PreGame extends State {
   enter() {
     game.reset();
     changeMenu('main-menu');
-    settings.sounds.gameplayMusic.pause();
-    settings.sounds.gameplayMusic.currentTime = 0;
+    settings.resetGameplayMusic();
   }
 }
 
@@ -346,6 +345,11 @@ const settings = {
     gameplayMusic: new Audio('sounds/gameplay-music.wav')
   },
 
+  resetGameplayMusic() {
+    this.sounds.gameplayMusic.pause();
+    this.sounds.gameplayMusic.currentTime = 0;
+  },
+
   playSound(soundName) {
     if (!this.sound) {
       return;
@@ -398,26 +402,44 @@ const game = {
   initialMoveDirection: 'right',
   currentMoveDirection: 'right',
   loopTimeout: undefined,
+  animatedScoreTimeout: undefined,
 
-  updateScoreDisplays() {
-    scoreValue.innerText = this.score.toString();
-    previousBestScoreValue.innerText = this.previousBestScore.toString();
-    foodEatenValue.innerText = this.foodEaten.toString();
+  updateScoreDisplays(startingValue, endingValue, scoreDisplayElement, t = 0) {
+    t += 0.01;
+    let animatedValue = Math.round(
+      startingValue + (endingValue - startingValue) * t
+    );
+    scoreDisplayElement.innerText = animatedValue.toString();
+
+    if (t < 1) {
+      this.animatedScoreTimeout = setTimeout(() => {
+        this.updateScoreDisplays(
+          startingValue,
+          endingValue,
+          scoreDisplayElement,
+          t
+        );
+      }, 5.625);
+    }
   },
 
   changeScore(amount) {
+    this.updateScoreDisplays(this.score, this.score + amount, scoreValue);
     this.score += amount;
 
     if (this.score > this.previousBestScore) {
+      this.updateScoreDisplays(
+        this.previousBestScore,
+        this.score,
+        previousBestScoreValue
+      );
       this.previousBestScore = this.score;
     }
-
-    this.updateScoreDisplays();
   },
 
   changeFoodEaten(amount) {
     this.foodEaten += amount;
-    this.updateScoreDisplays();
+    foodEatenValue.innerText = this.foodEaten.toString();
   },
 
   resetScores(includePb) {
@@ -426,9 +448,11 @@ const game = {
 
     if (includePb) {
       this.previousBestScore = 0;
+      previousBestScoreValue.innerText = '0';
     }
 
-    this.updateScoreDisplays();
+    scoreValue.innerText = '0';
+    foodEatenValue.innerText = '0';
   },
 
   reset() {
@@ -437,6 +461,7 @@ const game = {
     this.resetScores();
     snakeHead.reset();
     this.currentMoveDirection = this.initialMoveDirection;
+    settings.resetGameplayMusic();
   },
 
   setDifficulty(newDifficulty) {
