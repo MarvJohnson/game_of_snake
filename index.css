@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@300&display=swap');
 
 /* https://web.dev/building-a-color-scheme/ */
-* {
+:root {
   /* The brand is the main color that we base our shades, tints, and tones off of. We seperate it by it's hue, saturation,
      and lightness so we can use css calculations to dynamically adjust all of our other colors easily. */
   --brand-hue: 204;
@@ -76,6 +76,7 @@ h1 {
 
 button {
   cursor: pointer;
+  white-space: nowrap;
 }
 
 main {
@@ -284,11 +285,19 @@ main {
 }
 
 .cell.apple {
-  background-color: var(--food1);
+  background: radial-gradient(
+    var(--food1) 0%,
+    var(--food1) 50%,
+    transparent 50%
+  );
 }
 
 .cell.banana {
-  background-color: var(--food2);
+  background: radial-gradient(
+    var(--food2) 0%,
+    var(--food2) 50%,
+    transparent 50%
+  );
 }
 
 @media screen and (max-width: 700px) {

@@ -86,6 +86,13 @@ class SnakeHead extends SnakeSegment {
     if (cell.currentOccupant instanceof Food) {
       cell.currentOccupant.eat();
       cell.removeOccupant();
+
+      if (
+        snakeHead.snakeLength ===
+        game.movementGridDimensions * game.movementGridDimensions
+      ) {
+        game.stateMachine.setState(new GameWon());
+      }
     }
 
     super.setOccupiedCell(cell);
@@ -249,6 +256,17 @@ class GameOver extends State {
 
   enter() {
     changeMenu('game-over-menu');
+    stopGame();
+  }
+}
+
+class GameWon extends State {
+  constructor() {
+    super();
+  }
+
+  enter() {
+    changeMenu('game-won-menu');
     stopGame();
   }
 }
@@ -689,6 +707,10 @@ document.onkeydown = (e) => {
 
   if (e.key === 'Escape') {
     game.stateMachine.getState().pauseGame();
+  }
+
+  if (e.key === 'g') {
+    game.stateMachine.setState(new GameWon());
   }
 };
 
