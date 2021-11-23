@@ -161,7 +161,7 @@ class Banana extends Food {
   }
 }
 
-// State Machine
+// State Machine //
 class State {
   constructor() {}
 
@@ -312,14 +312,14 @@ class StateMachine {
   }
 }
 
-// Difficulty
+// Difficulty //
 class Difficulty {
   constructor(tickSpeed) {
     this.tickSpeed = tickSpeed;
   }
 }
 
-// Settings
+// Settings //
 class Setting {
   constructor(name, defaultValue, element, turnOnExtraFunc, turnOffExtraFunc) {
     this.name = name;
@@ -795,10 +795,6 @@ document.onkeydown = (e) => {
   if (e.key === 'Escape') {
     game.stateMachine.getState().pauseGame();
   }
-
-  if (e.key === 'g') {
-    game.stateMachine.setState(new GameWon());
-  }
 };
 
 playBtn.addEventListener('click', () => {
@@ -901,7 +897,6 @@ darkModeBtns.forEach((element) => {
 
 // --Main-- //
 settings.sounds.gameplayMusic.loop = true;
-
 game.setDifficulty('medium');
 setupMovementGrid();
 const snakeHead = new SnakeHead(null, 'snake-head');
