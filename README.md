@@ -29,11 +29,13 @@ The game of Snake, reamagined with new sounds, animations, and effects!
 
 ### **_How To Play_**
 
+[Follow this link](http://marvel-game-of-snake.surge.sh/)
+
 Use the arrow keys to choose the direction you want to move in.
 
 Avoid the edges and any part of your snake (trying not to eat yourself)
 
-Eat food to get points.. Avoid non-edible items and poisonous food!
+Eat food to get points!
 
 Get as big as you possibly can!
 
