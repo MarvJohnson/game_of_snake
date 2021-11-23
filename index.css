@@ -120,6 +120,7 @@ main {
 
 #score-area {
   display: flex;
+  justify-content: space-between;
 }
 
 #score-area > p {

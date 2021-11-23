@@ -312,10 +312,97 @@ class StateMachine {
   }
 }
 
-//Difficulty
+// Difficulty
 class Difficulty {
   constructor(tickSpeed) {
     this.tickSpeed = tickSpeed;
+  }
+}
+
+// Settings
+class Setting {
+  constructor(name, defaultValue, element, turnOnExtraFunc, turnOffExtraFunc) {
+    this.name = name;
+    this.defaultValue = defaultValue;
+    this.value = localStorage.getItem(name) || defaultValue;
+    this.element = element;
+    this.turnOnExtraFunc = turnOnExtraFunc || (() => {});
+    this.turnOffExtraFunc = turnOffExtraFunc || (() => {});
+  }
+
+  initialize() {
+    console.log(`Initialize has not been setup for ${name} setting!`);
+  }
+
+  cacheValue() {
+    localStorage.setItem(this.name, this.value);
+  }
+
+  turnOn() {
+    this.cacheValue();
+    this.turnOnExtraFunc();
+  }
+
+  turnOff() {
+    this.cacheValue();
+    this.turnOffExtraFunc();
+  }
+
+  set() {}
+
+  reset() {
+    this.value = this.defaultValue;
+  }
+}
+
+class BooleanSetting extends Setting {
+  constructor(
+    name,
+    defaultValue = 'On',
+    element,
+    turnOnExtraFunc,
+    turnOffExtraFunc
+  ) {
+    super(name, defaultValue, element, turnOnExtraFunc, turnOffExtraFunc);
+    this.onBtn = element.querySelector('[data-bool="On"]');
+    this.onBtn.addEventListener('click', () => {
+      this.turnOn();
+    });
+    this.offBtn = element.querySelector('[data-bool="Off"]');
+    this.offBtn.addEventListener('click', () => {
+      this.turnOff();
+    });
+  }
+
+  #setSelected(onBtnSelected, offBtnSelected) {
+    let addReForOn = onBtnSelected ? 'add' : 'remove';
+    let addReForOff = offBtnSelected ? 'add' : 'remove';
+
+    this.onBtn.classList[addReForOn]('selected');
+    this.offBtn.classList[addReForOff]('selected');
+  }
+
+  initialize() {
+    let val = `turn${this.value}`;
+    console.log(val);
+    this[val]();
+    // this[`turn${this.value}`]();
+  }
+
+  turnOn() {
+    this.#setSelected(true, false);
+    this.value = true;
+    super.turnOn();
+  }
+
+  turnOff() {
+    this.#setSelected(false, true);
+    this.value = false;
+    super.turnOff();
+  }
+
+  isEnabled() {
+    return this.value === 'On';
   }
 }
 //
@@ -358,9 +445,9 @@ const settings = {
     x: 21,
     y: 21
   },
-  sound: true,
   musicEnabled: true,
   volume: 0.5,
+  sound: true,
   sounds: {
     buttonClickSound: new Audio('sounds/button-click-sound.wav'),
     snakeEatSound: new Audio('sounds/snake-eat-sound.wav'),
@@ -419,6 +506,12 @@ const settings = {
   setVolume(newVolume) {
     this.volume = newVolume;
     this.updateSoundVolumes();
+  },
+
+  loadSettings() {
+    Object.entries(localStorage).forEach((element) => {
+      console.log(element);
+    });
   }
 };
 
@@ -808,8 +901,8 @@ darkModeBtns.forEach((element) => {
 
 // --Main-- //
 settings.sounds.gameplayMusic.loop = true;
+
 game.setDifficulty('medium');
 setupMovementGrid();
 const snakeHead = new SnakeHead(null, 'snake-head');
-
 //

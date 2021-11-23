@@ -55,11 +55,16 @@ Get as big as you possibly can!
 - [x] Add difficulty settings
 - [x] Add menu system
 - [x] Used google fonts
-- [ ] Add dark mode
+- [x] Add dark mode
+- [x] Add animation to scores
+- [ ] Cache settings so they don't reset
+- [ ] Add coyote time to player movement
 
 ---
 
 ### **_Credits_**
+
+Dark Mode: [Google Developers](https://web.dev/building-a-color-scheme/)
 
 Organization: [Trello](https://trello.com/b/fNyosNRS/snake-game-project)
 
