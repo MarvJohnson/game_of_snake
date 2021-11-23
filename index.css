@@ -27,6 +27,18 @@
   --snake-segment-light: hsl(calc((var(--brand-hue))), 40%, 60%);
   --snake-head-light: hsl(calc((var(--brand-hue))), 60%, 40%);
 
+  --text1-dark: hsl(var(--brand-hue), var(--brand-saturation), 80%);
+  --text2-dark: hsl(var(--brand-hue), 30%, 30%);
+  --surface1-dark: hsl(var(--brand-hue), 90%, 10%);
+  --surface2-dark: hsl(var(--brand-hue), 35%, 45%);
+  --surface3-dark: hsla(var(--brand-hue), 20%, 30%, 0.5);
+  --surface4-dark: hsl(var(--brand-hue), 10%, 60%);
+  --surface5-dark: hsl(var(--brand-hue), 35%, 40%);
+  --food1-dark: hsl(calc((var(--brand-hue) + 180)), 30%, 70%);
+  --food2-dark: hsl(calc((var(--brand-hue) + 90)), 30%, 70%);
+  --snake-segment-dark: hsl(calc((var(--brand-hue))), 40%, 30%);
+  --snake-head-dark: hsl(calc((var(--brand-hue))), 60%, 20%);
+
   --text1: var(--text1-light);
   --text2: var(--text2-light);
   --surface1: var(--surface1-light);
@@ -39,6 +51,7 @@
   --snake-segment: var(--snake-segment-light);
   --snake-head: var(--snake-head-light);
 
+  --food-size: 40%;
   --movement-grid-border-color: #9198a1;
   --movement-grid-border-width: 4px;
   font-family: 'Roboto Slab', serif;
@@ -46,6 +59,17 @@
 
 [color-scheme='dark'] {
   color-scheme: dark;
+
+  --text1: var(--text1-dark);
+  --surface1: var(--surface1-dark);
+  --surface2: var(--surface2-dark);
+  --surface3: var(--surface3-dark);
+  --surface4: var(--surface4-dark);
+  --surface5: var(--surface5-dark);
+  --food1: var(--food1-dark);
+  --food2: var(--food2-dark);
+  --snake-segment: var(--snake-segment-dark);
+  --snake-head: var(--snake-head-dark);
 }
 
 html,
@@ -281,22 +305,38 @@ main {
 }
 
 .snake-segment {
-  background-color: var(--snake-segment-light);
+  background-color: var(--snake-segment);
 }
 
 .cell.apple {
   background: radial-gradient(
     var(--food1) 0%,
-    var(--food1) 50%,
-    transparent 50%
+    var(--food1) var(--food-size),
+    var(--surface2) var(--food-size)
   );
 }
 
 .cell.banana {
   background: radial-gradient(
     var(--food2) 0%,
-    var(--food2) 50%,
-    transparent 50%
+    var(--food2) var(--food-size),
+    var(--surface2) var(--food-size)
+  );
+}
+
+.cell.apple.checkered-cell {
+  background: radial-gradient(
+    var(--food1) 0%,
+    var(--food1) var(--food-size),
+    var(--surface5) var(--food-size)
+  );
+}
+
+.cell.banana.checkered-cell {
+  background: radial-gradient(
+    var(--food2) 0%,
+    var(--food2) var(--food-size),
+    var(--surface5) var(--food-size)
   );
 }
 

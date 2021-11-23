@@ -387,12 +387,6 @@ const settings = {
 
     let selectedSound = this.sounds[soundName];
     if (selectedSound && (soundName !== 'gameplayMusic' || this.musicEnabled)) {
-      console.log(
-        'Playing',
-        selectedSound,
-        'with musicEnabled as',
-        this.musicEnabled
-      );
       selectedSound.volume = this.volume;
       selectedSound.play();
     }
@@ -789,7 +783,7 @@ musicBtns.forEach((element) => {
 
     element.classList.add('selected');
 
-    if (musicBtns.innerText === 'on') {
+    if (element.innerText === 'on') {
       settings.enableMusic();
     } else {
       settings.disableMusic();
