@@ -31,7 +31,7 @@ The game of Snake, reamagined with new sounds, animations, and effects!
 
 \>>**[Follow this link](http://marvel-game-of-snake.surge.sh/)**<<
 
-Use the [w, a, s, d] keys to choose the direction you want to move in.
+Use the [w, a, s, d] or arrow keys to choose the direction you want to move in.
 
 Avoid the edges and any part of your snake (trying not to eat yourself)
 

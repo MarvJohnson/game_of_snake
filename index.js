@@ -196,24 +196,28 @@ class Running extends State {
   setMoveDirection(movementKey) {
     switch (movementKey) {
       case 'w':
+      case 'ArrowUp':
         game.currentMoveDirection =
           snakeHead.lastOccupiedCell !== snakeHead.currentlyOccupiedCell.up
             ? 'up'
             : game.currentMoveDirection;
         break;
       case 'a':
+      case 'ArrowLeft':
         game.currentMoveDirection =
           snakeHead.lastOccupiedCell !== snakeHead.currentlyOccupiedCell.left
             ? 'left'
             : game.currentMoveDirection;
         break;
       case 's':
+      case 'ArrowDown':
         game.currentMoveDirection =
           snakeHead.lastOccupiedCell !== snakeHead.currentlyOccupiedCell.down
             ? 'down'
             : game.currentMoveDirection;
         break;
       case 'd':
+      case 'ArrowRight':
         game.currentMoveDirection =
           snakeHead.lastOccupiedCell !== snakeHead.currentlyOccupiedCell.right
             ? 'right'
@@ -796,7 +800,6 @@ document.onkeydown = (e) => {
     game.stateMachine.getState().pauseGame();
   }
 };
-
 playBtn.addEventListener('click', () => {
   game.stateMachine.setState(new Countdown());
 });
@@ -900,4 +903,5 @@ settings.sounds.gameplayMusic.loop = true;
 game.setDifficulty('medium');
 setupMovementGrid();
 const snakeHead = new SnakeHead(null, 'snake-head');
+// runMovementCellNeighborVisualizer(200);
 //
