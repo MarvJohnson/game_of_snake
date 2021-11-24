@@ -326,13 +326,12 @@ class Difficulty {
 // Settings //
 class Setting {
   static #settings = [];
-  constructor(name, defaultValue, element, turnOnExtraFunc, turnOffExtraFunc) {
+  #defaultValue;
+  constructor(name, defaultValue, element) {
     this.name = name;
-    this.defaultValue = defaultValue;
+    this.#defaultValue = defaultValue;
     this.value = localStorage.getItem(name) || defaultValue;
     this.element = element;
-    this.turnOnExtraFunc = turnOnExtraFunc || (() => {});
-    this.turnOffExtraFunc = turnOffExtraFunc || (() => {});
     Setting.#settings.push(this);
   }
 
@@ -346,20 +345,16 @@ class Setting {
     localStorage.setItem(this.name, this.value);
   }
 
-  turnOn() {
+  finalize(extraFunc) {
     this.cacheValue();
-    this.turnOnExtraFunc();
-  }
 
-  turnOff() {
-    this.cacheValue();
-    this.turnOffExtraFunc();
+    if (extraFunc) {
+      extraFunc();
+    }
   }
-
-  set() {}
 
   reset() {
-    this.value = this.defaultValue;
+    this.value = this.#defaultValue;
   }
 }
 
@@ -371,7 +366,9 @@ class BooleanSetting extends Setting {
     turnOnExtraFunc,
     turnOffExtraFunc
   ) {
-    super(name, defaultValue, element, turnOnExtraFunc, turnOffExtraFunc);
+    super(name, defaultValue, element);
+    this.turnOnExtraFunc = turnOnExtraFunc;
+    this.turnOffExtraFunc = turnOffExtraFunc;
     this.onBtn = element.querySelector('[data-bool="On"]');
     this.onBtn.addEventListener('click', () => {
       this.turnOn();
@@ -397,13 +394,13 @@ class BooleanSetting extends Setting {
   turnOn() {
     this.#setSelected(true, false);
     this.value = 'On';
-    super.turnOn();
+    super.finalize(this.turnOnExtraFunc);
   }
 
   turnOff() {
     this.#setSelected(false, true);
     this.value = 'Off';
-    super.turnOff();
+    super.finalize(this.turnOffExtraFunc);
   }
 
   isEnabled() {
@@ -412,8 +409,58 @@ class BooleanSetting extends Setting {
 }
 
 class RadioSetting extends Setting {
-  constructor(name, defaultValue = 0, element) {
+  constructor(name, defaultValue, element, ...options) {
     super(name, defaultValue, element);
+    this.options = options;
+    this.optionElements = element.querySelectorAll(
+      '[data-radio*="setting-option-"]'
+    );
+    this.optionElements.forEach((element, index) => {
+      element.addEventListener('click', () => {
+        this.set(index);
+      });
+    });
+  }
+
+  #setSelected(selectedElement) {
+    this.optionElements.forEach((element) => {
+      element.classList.remove('selected');
+    });
+
+    selectedElement.classList.add('selected');
+  }
+
+  initialize() {
+    this.set(this.value);
+  }
+
+  set(newValue) {
+    this.#setSelected(this.optionElements[newValue]);
+    this.value = newValue;
+    super.finalize();
+  }
+
+  getValue() {
+    return this.options[this.value];
+  }
+}
+
+class SliderSetting extends Setting {
+  constructor(name, defaultValue, element) {
+    super(name, defaultValue, element);
+    this.element.addEventListener('input', () => {
+      this.set(this.element.value);
+    });
+  }
+
+  initialize() {
+    this.set(this.value);
+  }
+
+  set(newValue) {
+    this.value = newValue;
+    this.element.value = this.value;
+    super.finalize();
   }
 }
 //
@@ -456,19 +503,10 @@ const settings = {
     x: 21,
     y: 21
   },
-  volume: 0.5,
   sounds: {
     buttonClickSound: new Audio('sounds/button-click-sound.wav'),
     snakeEatSound: new Audio('sounds/snake-eat-sound.wav'),
     gameplayMusic: new Audio('sounds/gameplay-music.wav')
-  },
-
-  enableDarkMode() {
-    htmlElement.setAttribute('color-scheme', 'dark');
-  },
-
-  disableDarkMode() {
-    htmlElement.setAttribute('color-scheme', 'light');
   },
 
   resetGameplayMusic() {
@@ -486,7 +524,7 @@ const settings = {
       selectedSound &&
       (soundName !== 'gameplayMusic' || this.musicEnabled.isEnabled())
     ) {
-      selectedSound.volume = this.volume;
+      selectedSound.volume = this.volume.value;
       selectedSound.play();
     }
   },
@@ -537,6 +575,19 @@ settings.darkMode = new BooleanSetting(
     htmlElement.setAttribute('color-scheme', 'light');
   }
 );
+settings.difficulty = new RadioSetting(
+  'difficulty',
+  1,
+  document.querySelector('#difficulty-setting'),
+  new Difficulty(150),
+  new Difficulty(100),
+  new Difficulty(70)
+);
+settings.volume = new SliderSetting(
+  'volume',
+  0.5,
+  document.querySelector('#sound-volume-slider')
+);
 
 Setting.initialize();
 
@@ -545,14 +596,8 @@ const game = {
   score: 0,
   initialCountdown: 3,
   countdown: 3,
-  currentDifficulty: null,
-  difficultyOptions: {
-    easy: new Difficulty(150),
-    medium: new Difficulty(100),
-    hard: new Difficulty(70)
-  },
   menuStack: ['main-menu'],
-  previousBestScore: 0,
+  previousBestScore: localStorage.getItem('previous-best') || 0,
   foodEaten: 0,
   foodItems: [new Apple(), new Banana()],
   foodItemsOnGrid: 0,
@@ -591,6 +636,7 @@ const game = {
         previousBestScoreValue
       );
       this.previousBestScore = this.score;
+      localStorage.setItem('previous-best', this.previousBestScore);
     }
   },
 
@@ -619,19 +665,9 @@ const game = {
     snakeHead.reset();
     this.currentMoveDirection = this.initialMoveDirection;
     settings.resetGameplayMusic();
-  },
-
-  setDifficulty(newDifficulty) {
-    this.currentDifficulty = this.difficultyOptions[newDifficulty];
-    difficultyBtns.forEach((element) => {
-      if (element.innerText !== newDifficulty) {
-        element.classList.remove('selected');
-      } else {
-        element.classList.add('selected');
-      }
-    });
   }
 };
+game.updateScoreDisplays(0, game.previousBestScore, previousBestScoreValue);
 //
 
 // --Functions-- //
@@ -771,7 +807,10 @@ const moveSnake = () => {
 };
 
 const gameLoop = () => {
-  game.loopTimeout = setTimeout(gameLoop, game.currentDifficulty.tickSpeed);
+  game.loopTimeout = setTimeout(
+    gameLoop,
+    settings.difficulty.getValue().tickSpeed
+  );
   moveSnake();
 };
 
@@ -860,11 +899,11 @@ countdownDisplay.addEventListener('animationiteration', () => {
 countdownDisplay.addEventListener('animationend', () => {
   startGame();
 });
-difficultyBtns.forEach((element) => {
-  element.addEventListener('click', () => {
-    game.setDifficulty(element.innerText);
-  });
-});
+// difficultyBtns.forEach((element) => {
+//   element.addEventListener('click', () => {
+//     game.setDifficulty(element.innerText);
+//   });
+// });
 // soundBtns.forEach((element) => {
 //   element.addEventListener('click', () => {
 //     soundBtns.forEach((element) => {
@@ -885,9 +924,10 @@ allBtns.forEach((element) => {
     settings.playSound('buttonClickSound');
   });
 });
-volumeSlider.addEventListener('input', (e) => {
-  settings.setVolume(e.target.value);
-});
+// volumeSlider.addEventListener('input', (e) => {
+//   settings.setVolume(e.target.value);
+//   console.log('Working');
+// });
 // musicBtns.forEach((element) => {
 //   element.addEventListener('click', () => {
 //     musicBtns.forEach((element) => {
@@ -920,7 +960,7 @@ volumeSlider.addEventListener('input', (e) => {
 //
 
 // --Main-- //
-game.setDifficulty('medium');
+// game.setDifficulty('medium');
 setupMovementGrid();
 const snakeHead = new SnakeHead(null, 'snake-head');
 //
