@@ -325,6 +325,7 @@ class Difficulty {
 
 // Settings //
 class Setting {
+  static #settings = [];
   constructor(name, defaultValue, element, turnOnExtraFunc, turnOffExtraFunc) {
     this.name = name;
     this.defaultValue = defaultValue;
@@ -332,10 +333,13 @@ class Setting {
     this.element = element;
     this.turnOnExtraFunc = turnOnExtraFunc || (() => {});
     this.turnOffExtraFunc = turnOffExtraFunc || (() => {});
+    Setting.#settings.push(this);
   }
 
-  initialize() {
-    console.log(`Initialize has not been setup for ${name} setting!`);
+  static initialize() {
+    Setting.#settings.forEach((setting) => {
+      setting.initialize();
+    });
   }
 
   cacheValue() {
@@ -387,26 +391,29 @@ class BooleanSetting extends Setting {
   }
 
   initialize() {
-    let val = `turn${this.value}`;
-    console.log(val);
-    this[val]();
-    // this[`turn${this.value}`]();
+    this[`turn${this.value}`]();
   }
 
   turnOn() {
     this.#setSelected(true, false);
-    this.value = true;
+    this.value = 'On';
     super.turnOn();
   }
 
   turnOff() {
     this.#setSelected(false, true);
-    this.value = false;
+    this.value = 'Off';
     super.turnOff();
   }
 
   isEnabled() {
     return this.value === 'On';
+  }
+}
+
+class RadioSetting extends Setting {
+  constructor(name, defaultValue = 0, element) {
+    super(name, defaultValue, element);
   }
 }
 //
@@ -449,9 +456,7 @@ const settings = {
     x: 21,
     y: 21
   },
-  musicEnabled: true,
   volume: 0.5,
-  sound: true,
   sounds: {
     buttonClickSound: new Audio('sounds/button-click-sound.wav'),
     snakeEatSound: new Audio('sounds/snake-eat-sound.wav'),
@@ -472,33 +477,18 @@ const settings = {
   },
 
   playSound(soundName) {
-    if (!this.sound) {
+    if (!this.sound.isEnabled()) {
       return;
     }
 
     let selectedSound = this.sounds[soundName];
-    if (selectedSound && (soundName !== 'gameplayMusic' || this.musicEnabled)) {
+    if (
+      selectedSound &&
+      (soundName !== 'gameplayMusic' || this.musicEnabled.isEnabled())
+    ) {
       selectedSound.volume = this.volume;
       selectedSound.play();
     }
-  },
-
-  enableSound() {
-    this.playSound('buttonClickSound');
-    this.sound = true;
-  },
-
-  disableSound() {
-    this.sound = false;
-  },
-
-  enableMusic() {
-    this.musicEnabled = true;
-  },
-
-  disableMusic() {
-    this.musicEnabled = false;
-    this.resetGameplayMusic();
   },
 
   updateSoundVolumes() {
@@ -518,6 +508,37 @@ const settings = {
     });
   }
 };
+settings.sounds.gameplayMusic.loop = true;
+settings.sound = new BooleanSetting(
+  'sound',
+  'On',
+  document.querySelector('#sound-setting'),
+  () => {
+    settings.playSound('buttonClickSound');
+  }
+);
+settings.musicEnabled = new BooleanSetting(
+  'music',
+  'On',
+  document.querySelector('#music-setting'),
+  undefined,
+  () => {
+    settings.resetGameplayMusic();
+  }
+);
+settings.darkMode = new BooleanSetting(
+  'dark-mode',
+  'On',
+  document.querySelector('#dark-mode-setting'),
+  () => {
+    htmlElement.setAttribute('color-scheme', 'dark');
+  },
+  () => {
+    htmlElement.setAttribute('color-scheme', 'light');
+  }
+);
+
+Setting.initialize();
 
 const game = {
   stateMachine: new StateMachine(new PreGame()),
@@ -844,21 +865,21 @@ difficultyBtns.forEach((element) => {
     game.setDifficulty(element.innerText);
   });
 });
-soundBtns.forEach((element) => {
-  element.addEventListener('click', () => {
-    soundBtns.forEach((element) => {
-      element.classList.remove('selected');
-    });
+// soundBtns.forEach((element) => {
+//   element.addEventListener('click', () => {
+//     soundBtns.forEach((element) => {
+//       element.classList.remove('selected');
+//     });
 
-    element.classList.add('selected');
+//     element.classList.add('selected');
 
-    if (element.innerText === 'on') {
-      settings.enableSound();
-    } else {
-      settings.disableSound();
-    }
-  });
-});
+//     if (element.innerText === 'on') {
+//       settings.enableSound();
+//     } else {
+//       settings.disableSound();
+//     }
+//   });
+// });
 allBtns.forEach((element) => {
   element.addEventListener('click', () => {
     settings.playSound('buttonClickSound');
@@ -867,41 +888,39 @@ allBtns.forEach((element) => {
 volumeSlider.addEventListener('input', (e) => {
   settings.setVolume(e.target.value);
 });
-musicBtns.forEach((element) => {
-  element.addEventListener('click', () => {
-    musicBtns.forEach((element) => {
-      element.classList.remove('selected');
-    });
+// musicBtns.forEach((element) => {
+//   element.addEventListener('click', () => {
+//     musicBtns.forEach((element) => {
+//       element.classList.remove('selected');
+//     });
 
-    element.classList.add('selected');
+//     element.classList.add('selected');
 
-    if (element.innerText === 'on') {
-      settings.enableMusic();
-    } else {
-      settings.disableMusic();
-    }
-  });
-});
-darkModeBtns.forEach((element) => {
-  element.addEventListener('click', () => {
-    darkModeBtns.forEach((element) => {
-      element.classList.remove('selected');
-    });
+//     if (element.innerText === 'on') {
+//       settings.enableMusic();
+//     } else {
+//       settings.disableMusic();
+//     }
+//   });
+// });
+// darkModeBtns.forEach((element) => {
+//   element.addEventListener('click', () => {
+//     darkModeBtns.forEach((element) => {
+//       element.classList.remove('selected');
+//     });
 
-    element.classList.add('selected');
-    if (element.innerText === 'on') {
-      settings.enableDarkMode();
-    } else {
-      settings.disableDarkMode();
-    }
-  });
-});
+//     element.classList.add('selected');
+//     if (element.innerText === 'on') {
+//       settings.enableDarkMode();
+//     } else {
+//       settings.disableDarkMode();
+//     }
+//   });
+// });
 //
 
 // --Main-- //
-settings.sounds.gameplayMusic.loop = true;
 game.setDifficulty('medium');
 setupMovementGrid();
 const snakeHead = new SnakeHead(null, 'snake-head');
-// runMovementCellNeighborVisualizer(200);
 //

@@ -38,12 +38,12 @@
           <div>
             <h2>Settings</h2>
             <div class="menu-options-area">
-              <div class="setting">
+              <div id="difficulty-setting" class="setting">
                 <h3>Difficulty</h3>
                 <div>
-                  <button class="difficulty-btn">easy</button>
-                  <button class="difficulty-btn">medium</button>
-                  <button class="difficulty-btn">hard</button>
+                  <button class="difficulty-btn" data-radio="setting-option-0">easy</button>
+                  <button class="difficulty-btn" data-radio="setting-option-1">medium</button>
+                  <button class="difficulty-btn" data-radio="setting-option-2">hard</button>
                 </div>
               </div>
               <div id="sound-setting" class="setting">
@@ -51,19 +51,19 @@
                 <button class="sound-btn selected" data-bool="On">on</button>
                 <button class="sound-btn" data-bool="Off">off</button>
               </div>
-              <div class="setting">
+              <div id="music-setting" class="setting">
                 <h3>Music</h3>
-                <button class="gameplay-music-sound-btn selected">on</button>
-                <button class="gameplay-music-sound-btn">off</button>
+                <button class="gameplay-music-sound-btn selected" data-bool="On">on</button>
+                <button class="gameplay-music-sound-btn" data-bool="Off">off</button>
               </div>
               <div class="setting">
                 <h3>Volume</h3>
                 <input id="sound-volume-slider" type="range" min="0" max="1" value="0.5" step="0.01" class="slider">
               </div>
-              <div class="setting">
+              <div id="dark-mode-setting" class="setting">
                 <h3>Dark Mode</h3>
-                <button class="dark-mode-btn">on</button>
-                <button class="dark-mode-btn selected">off</button>
+                <button class="dark-mode-btn" data-bool="On">on</button>
+                <button class="dark-mode-btn selected" data-bool="Off">off</button>
               </div>
             </div>
           </div>
