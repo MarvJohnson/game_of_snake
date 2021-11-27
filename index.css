@@ -116,6 +116,8 @@ main {
   display: flex;
   position: relative;
   flex-direction: column;
+  width: 600px;
+  height: 600px;
 }
 
 #score-area {
@@ -133,8 +135,8 @@ main {
   position: relative;
   display: grid;
   border: var(--movement-grid-border-width) solid var(--surface4);
-  width: 600px;
-  height: 600px;
+  width: 100%;
+  height: 100%;
   box-sizing: border-box;
 }
 
@@ -342,8 +344,23 @@ main {
 }
 
 @media screen and (max-width: 700px) {
-  #play-area {
-    width: 400px;
-    height: 400px;
+  #score-area p {
+    font-size: 14px;
+  }
+
+  #snake-area {
+    width: 450px;
+    height: 450px;
+  }
+}
+
+@media screen and (max-width: 460px) {
+  #score-area p {
+    font-size: 12px;
+  }
+
+  #snake-area {
+    width: 300px;
+    height: 300px;
   }
 }
