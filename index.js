@@ -899,68 +899,13 @@ countdownDisplay.addEventListener('animationiteration', () => {
 countdownDisplay.addEventListener('animationend', () => {
   startGame();
 });
-// difficultyBtns.forEach((element) => {
-//   element.addEventListener('click', () => {
-//     game.setDifficulty(element.innerText);
-//   });
-// });
-// soundBtns.forEach((element) => {
-//   element.addEventListener('click', () => {
-//     soundBtns.forEach((element) => {
-//       element.classList.remove('selected');
-//     });
-
-//     element.classList.add('selected');
-
-//     if (element.innerText === 'on') {
-//       settings.enableSound();
-//     } else {
-//       settings.disableSound();
-//     }
-//   });
-// });
 allBtns.forEach((element) => {
   element.addEventListener('click', () => {
     settings.playSound('buttonClickSound');
   });
 });
-// volumeSlider.addEventListener('input', (e) => {
-//   settings.setVolume(e.target.value);
-//   console.log('Working');
-// });
-// musicBtns.forEach((element) => {
-//   element.addEventListener('click', () => {
-//     musicBtns.forEach((element) => {
-//       element.classList.remove('selected');
-//     });
-
-//     element.classList.add('selected');
-
-//     if (element.innerText === 'on') {
-//       settings.enableMusic();
-//     } else {
-//       settings.disableMusic();
-//     }
-//   });
-// });
-// darkModeBtns.forEach((element) => {
-//   element.addEventListener('click', () => {
-//     darkModeBtns.forEach((element) => {
-//       element.classList.remove('selected');
-//     });
-
-//     element.classList.add('selected');
-//     if (element.innerText === 'on') {
-//       settings.enableDarkMode();
-//     } else {
-//       settings.disableDarkMode();
-//     }
-//   });
-// });
-//
 
 // --Main-- //
-// game.setDifficulty('medium');
 setupMovementGrid();
 const snakeHead = new SnakeHead(null, 'snake-head');
 //
